@@ -7,6 +7,7 @@ import {
   ClipboardList,
   FileText,
   MapPin,
+  Phone,
   Stethoscope,
 } from 'lucide-react';
 import { useMemo, useState, type FormEvent } from 'react';
@@ -584,9 +585,17 @@ export function PatientAppointmentsPage() {
               <div>
                 <dt>Doctor</dt>
                 <dd>
-                  {detailDoctor?.phoneNumber
-                    ? `${detailDoctor.personName} · ${detailDoctor.phoneNumber}`
-                    : (detailDoctor?.personName ?? 'Care team')}
+                  {detailDoctor?.personName ?? 'Care team'}
+                  {detailDoctor?.phoneNumber ? (
+                    <a
+                      className="text-link visit-detail__phone"
+                      href={`tel:${detailDoctor.phoneNumber}`}
+                      dir="ltr"
+                    >
+                      <Phone size={13} aria-hidden="true" />
+                      {detailDoctor.phoneNumber}
+                    </a>
+                  ) : null}
                 </dd>
               </div>
             </dl>

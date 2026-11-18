@@ -2661,6 +2661,15 @@
   overflow-wrap: anywhere;
 }
 
+.visit-detail__phone {
+  display: flex;
+  width: fit-content;
+  margin-top: 0.2rem;
+  font-size: var(--text-meta);
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
 .visit-detail__record {
   padding-top: 0.95rem;
   border-top: 1px solid var(--line-soft);
