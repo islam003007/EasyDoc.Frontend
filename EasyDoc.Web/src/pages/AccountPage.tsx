@@ -64,12 +64,25 @@ function shortcutsForRole(role: string): Shortcut[] {
         {
           to: '/admin/patients',
           label: 'Patient directory',
-          description: 'Review the seeded patient records.',
+          description: 'Browse the seeded patient list in the sandbox.',
           icon: ShieldCheck,
         },
       ];
     default:
       return [];
+  }
+}
+
+function workspaceLabel(role: string): string {
+  switch (role) {
+    case 'patient':
+      return 'Patient care';
+    case 'doctor':
+      return 'Doctor practice';
+    case 'admin':
+      return 'Network admin';
+    default:
+      return 'Demo workspace';
   }
 }
 
@@ -94,7 +107,7 @@ export function AccountPage() {
             <em>place in the clinic.</em>
           </>
         }
-        lead="Your session is cookie-based and role-scoped. Patient accounts use the password chosen at registration; demo seats are one click."
+        lead="The name, email, and role for this seat — plus the quickest way back to your work. Demo seats open in one click; patient accounts use the password chosen at registration."
         actions={
           <button
             type="button"
@@ -116,35 +129,22 @@ export function AccountPage() {
             <h2>{session.displayName}</h2>
             <div className="account-card__meta">
               <RoleBadge role={session.role} />
-              <span>{session.email}</span>
             </div>
           </div>
         </div>
 
         <dl className="account-list">
           <div>
-            <dt>User ID</dt>
-            <dd className="code-value">{session.userId || 'Not returned by session'}</dd>
-          </div>
-          {session.patientId ? (
-            <div>
-              <dt>Patient record</dt>
-              <dd className="code-value">{session.patientId}</dd>
-            </div>
-          ) : null}
-          {session.doctorId ? (
-            <div>
-              <dt>Doctor record</dt>
-              <dd className="code-value">{session.doctorId}</dd>
-            </div>
-          ) : null}
-          <div>
             <dt>Role</dt>
             <dd>{roleLabel(session.role)}</dd>
           </div>
           <div>
-            <dt>Session transport</dt>
-            <dd>HTTP-only identity cookie · same-origin API</dd>
+            <dt>Email</dt>
+            <dd>{session.email}</dd>
+          </div>
+          <div>
+            <dt>Workspace</dt>
+            <dd>{workspaceLabel(session.role)}</dd>
           </div>
         </dl>
       </section>
@@ -178,9 +178,9 @@ export function AccountPage() {
           <p className="eyebrow">Switching seats</p>
           <h2>Switch roles any time.</h2>
           <p>
-            Signing out clears the session and every cached query, then returns to
-            the sign-in screen. Demo seats open in one click; patient accounts use
-            their own password.
+            Signing out returns you to the demo sign-in screen, where you can pick
+            another seat. Demo seats open in one click; patient accounts keep their
+            own password.
           </p>
         </div>
         <button

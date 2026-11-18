@@ -44,11 +44,10 @@ class AppErrorBoundary extends Component<
       return (
         <div className="fatal-screen">
           <div className="fatal-screen__inner">
-            <p className="mono-label">EasyDoc · interface error</p>
+            <p className="mono-label">EasyDoc · page error</p>
             <h1>Something went wrong on this page.</h1>
             <p className="fatal-screen__lead">
-              A screen failed to render. Your session is still on the server; reload
-              to try the route again.
+              A screen failed to render. Reload to try this page again.
             </p>
             <div className="page-actions">
               <button

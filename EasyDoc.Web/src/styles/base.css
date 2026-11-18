@@ -10,8 +10,8 @@
   --ink: #221d55;
   --ink-strong: #17123d;
   --ink-soft: #4b4774;
-  --ink-muted: #6c6989;
-  --ink-faint: #8b88a4;
+  --ink-muted: #5f5b7d;
+  --ink-faint: #6b6788;
 
   --indigo: #29205f;
   --indigo-deep: #1b1545;
@@ -51,6 +51,12 @@
   --font-mono: 'IBM Plex Mono', 'IBM Plex Sans Arabic', 'SFMono-Regular',
     Consolas, monospace;
   --font-arabic: 'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, sans-serif;
+
+  /* Readable type scale — functional labels never drop below 12px. */
+  --text-label: 0.75rem; /* 12px — mono labels, pills, counts, utility text */
+  --text-meta: 0.8125rem; /* 13px — secondary metadata, helper text */
+  --text-body: 0.875rem; /* 14px — table cells, controls, compact copy */
+  --text-copy: 0.9375rem; /* 15px — leads and longer-form copy */
 
   --shadow-sm: 0 1px 2px rgba(34, 29, 85, 0.05);
   --shadow-soft: 0 18px 50px -34px rgba(34, 29, 85, 0.4),
@@ -219,7 +225,7 @@ fieldset {
   color: #fff;
   padding: 0.65rem 1rem;
   border-radius: var(--radius-pill);
-  font-size: 0.84rem;
+  font-size: var(--text-body);
   font-weight: 700;
   transition: transform 150ms ease;
 }
@@ -255,7 +261,7 @@ fieldset {
   border: 1px solid var(--line);
   border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.7);
-  font-size: 0.78rem;
+  font-size: var(--text-body);
   font-weight: 650;
   color: var(--ink-soft);
   transition:
@@ -292,10 +298,10 @@ fieldset {
   align-items: center;
   gap: 0.35rem;
   font-family: var(--font-mono);
-  font-size: 0.63rem;
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: 0.1em;
+  font-size: var(--text-label);
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--ink-muted);
 }
@@ -306,29 +312,30 @@ fieldset {
   gap: 0.5rem;
   margin-bottom: 0.75rem;
   font-family: var(--font-mono);
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  line-height: 1.4;
+  font-size: var(--text-label);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1.5;
   text-transform: uppercase;
   color: var(--pink-ink);
 }
 
 .eyebrow--light {
-  color: rgba(255, 255, 255, 0.66);
+  color: rgba(255, 255, 255, 0.78);
 }
 
 .eyebrow__index {
   display: inline-grid;
   place-items: center;
-  min-width: 1.65rem;
-  height: 1.35rem;
-  padding: 0 0.35rem;
+  min-width: 1.85rem;
+  height: 1.5rem;
+  padding: 0 0.4rem;
   border-radius: var(--radius-pill);
   background: var(--pink-wash);
   color: var(--pink-ink);
-  font-size: 0.56rem;
-  letter-spacing: 0.06em;
+  font-size: var(--text-label);
+  font-weight: 600;
+  letter-spacing: 0.05em;
 }
 
 .eyebrow--light .eyebrow__index {
@@ -338,7 +345,8 @@ fieldset {
 
 .code-value {
   font-family: var(--font-mono);
-  font-size: 0.69rem;
+  font-size: var(--text-meta);
+  font-weight: 500;
   letter-spacing: 0.015em;
   color: var(--ink-soft);
   overflow-wrap: anywhere;
@@ -347,7 +355,7 @@ fieldset {
 .helper-note {
   max-width: 62ch;
   margin-top: 0.85rem;
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
   line-height: 1.65;
   color: var(--ink-muted);
 }
@@ -358,12 +366,12 @@ fieldset {
   border-radius: 6px;
   background: var(--ice-soft);
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: var(--text-meta);
   color: var(--ink-soft);
 }
 
 .quiet-note {
-  font-size: 0.8rem;
+  font-size: var(--text-body);
   color: var(--ink-muted);
   line-height: 1.7;
 }
@@ -423,7 +431,7 @@ fieldset {
 
 .side-card > p {
   color: var(--ink-soft);
-  font-size: 0.88rem;
+  font-size: var(--text-copy);
 }
 
 .side-card__actions {
@@ -454,14 +462,15 @@ fieldset {
 
 .mini-list dt {
   font-family: var(--font-mono);
-  font-size: 0.59rem;
-  letter-spacing: 0.09em;
+  font-size: var(--text-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-muted);
 }
 
 .mini-list dd {
-  font-size: 0.8rem;
+  font-size: var(--text-body);
   text-align: right;
 }
 

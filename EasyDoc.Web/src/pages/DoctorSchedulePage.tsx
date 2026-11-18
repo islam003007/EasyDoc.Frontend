@@ -619,7 +619,7 @@ export function DoctorSchedulePage() {
         }
         description={
           deleteTarget?.kind === 'schedule'
-            ? `${dayName(deleteTarget.schedule.dayOfWeek)} · ${formatTimeRange(deleteTarget.schedule.startTime, deleteTarget.schedule.endTime)} will stop producing bookable slots after the server refreshes. Existing appointments are not canceled.`
+            ? `${dayName(deleteTarget.schedule.dayOfWeek)} · ${formatTimeRange(deleteTarget.schedule.startTime, deleteTarget.schedule.endTime)} will stop producing bookable slots. Existing appointments are not canceled.`
             : deleteTarget?.kind === 'override'
               ? `${formatDateLong(deleteTarget.override.date)} will return to the normal weekly schedule. Existing appointments are not canceled.`
               : ''

@@ -34,7 +34,7 @@ import {
   isUpcomingAppointment,
   relativeDateLabel,
 } from '../lib/dates';
-import { shortId, plural } from '../lib/format';
+import { plural } from '../lib/format';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
 
 interface AppointmentCardProps {
@@ -64,7 +64,7 @@ function AppointmentCard({ appointment, doctor, onCancel }: AppointmentCardProps
           <StatusPill status={appointment.status} />
         </div>
         <h3>
-          {doctor?.personName ?? appointment.doctorName ?? `Doctor ${shortId(appointment.doctorId)}`}
+          {doctor?.personName ?? appointment.doctorName ?? 'Your doctor'}
         </h3>
         <p className="visit-card__sub">
           <Stethoscope size={14} aria-hidden="true" />

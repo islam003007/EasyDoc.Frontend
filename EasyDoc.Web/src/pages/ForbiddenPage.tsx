@@ -23,7 +23,7 @@ export function ForbiddenPage() {
             <em>on your floor.</em>
           </>
         }
-        lead="The API protects each role with its own policy. The interface is doing the same before rendering a single record."
+        lead="This area belongs to a different role, and the app checks that before showing anything here."
       />
 
       <div className="forbidden-card">
@@ -31,7 +31,7 @@ export function ForbiddenPage() {
           <LockKeyhole />
         </span>
         <div>
-          <p className="mono-label">Current session</p>
+          <p className="mono-label">Signed in as</p>
           <h2>
             {session?.displayName} <RoleBadge role={role} />
           </h2>

@@ -41,7 +41,7 @@ export function StandardLoginPage() {
       const next = await refreshSession();
       if (!next) {
         throw new Error(
-          'Signed in, but the session cookie was not visible. Check that cookies are enabled for this site.',
+          'Signed in, but we couldn’t confirm your account. Refresh the page and try again.',
         );
       }
       return next;
@@ -80,8 +80,8 @@ export function StandardLoginPage() {
             <ArrowRight size={15} aria-hidden="true" />
           </Link>
           <p className="auth-fineprint">
-            Doctors and administrators sign in through the seeded demo roles. No
-            doctor self-registration is offered.
+            Demo environment with sample data. Doctors and demo admins sign in
+            through the one-click seats; no doctor self-registration is offered.
           </p>
         </>
       }

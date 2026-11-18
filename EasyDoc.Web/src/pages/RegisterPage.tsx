@@ -95,7 +95,7 @@ export function RegisterPage() {
       const next = await refreshSession();
       if (!next) {
         throw new Error(
-          'Your account was created, but the session cookie was not visible. Check that cookies are enabled, then sign in.',
+          'Your account was created, but we couldn’t confirm the sign-in. Refresh the page and sign in from the patient page.',
         );
       }
       return next;
@@ -134,7 +134,7 @@ export function RegisterPage() {
     <AuthScreen
       mode="New patient"
       title="Create your account."
-      lead="A few details are enough to start booking. New patient accounts are confirmed automatically in this demo."
+      lead="A few details are enough to start booking. New patient accounts are confirmed automatically in this demo — please use sample details only."
       footer={
         <>
           <p className="auth-switch">
@@ -148,8 +148,8 @@ export function RegisterPage() {
             <ArrowRight size={15} aria-hidden="true" />
           </Link>
           <p className="auth-fineprint">
-            Patient registration only. Doctor and administrator accounts are seeded
-            demo roles.
+            Patient registration only. Doctor and demo admin seats are seeded
+            accounts. Sample data may be reset.
           </p>
         </>
       }

@@ -52,7 +52,7 @@ export function roleBlurb(role: Role): string {
     case 'doctor':
       return 'Review requests, manage the day, and shape your weekly availability.';
     case 'admin':
-      return 'Oversee the doctor directory and the patients it serves.';
+      return 'Review the doctor directory and patient list in a safe, reversible sandbox.';
     default:
       return 'A seeded role for exploring the EasyDoc scheduling flow.';
   }

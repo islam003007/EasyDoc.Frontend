@@ -91,7 +91,7 @@ export function AdminDoctorsPage() {
             <em>directory.</em>
           </>
         }
-        lead="Every doctor record, including profiles patients cannot see. Toggling visibility writes through the admin-only API immediately."
+        lead="Every doctor profile, including the ones patients cannot see. Visibility changes apply right away and are always reversible."
         actions={
           <button
             type="button"
@@ -158,7 +158,7 @@ export function AdminDoctorsPage() {
           <StatGrid
             stats={[
               {
-                label: 'Doctor records',
+                label: 'Doctors',
                 value: all.length,
                 note: 'Includes hidden profiles',
               },
@@ -171,7 +171,7 @@ export function AdminDoctorsPage() {
               {
                 label: 'Hidden',
                 value: hidden,
-                note: 'Admin-only records',
+                note: 'Not shown in the directory',
                 tone: 'pending',
               },
             ]}
@@ -199,7 +199,7 @@ export function AdminDoctorsPage() {
             <EmptyState
               icon={<Stethoscope />}
               title="No doctors in the admin list."
-              description="The API returned an empty directory. Seed the database or register a doctor through the standard API to populate it."
+              description="The directory is empty. Try refreshing, or check that the demo data is loaded."
             />
           ) : filtered.length === 0 ? (
             <EmptyState
@@ -220,7 +220,7 @@ export function AdminDoctorsPage() {
             <div className="table-card">
               <table className="data-table">
                 <caption className="sr-only">
-                  Doctor records with visibility controls
+                  Doctors with visibility controls
                 </caption>
                 <thead>
                   <tr>
@@ -243,19 +243,20 @@ export function AdminDoctorsPage() {
                             <Monogram name={doctor.personName} size="sm" />
                             <div>
                               <strong>{doctor.personName}</strong>
-                              <span className="code-value">
-                                {doctor.id.slice(0, 8).toUpperCase()}
-                              </span>
                             </div>
                           </div>
                         </td>
                         <td data-label="Contact">
-                          <span>{doctor.email || 'No email returned'}</span>
-                          <span className="table-muted">{doctor.phoneNumber ?? '—'}</span>
+                          <div>
+                            <span>{doctor.email || 'No email on file'}</span>
+                            <span className="table-muted">{doctor.phoneNumber ?? '—'}</span>
+                          </div>
                         </td>
                         <td data-label="Practice">
-                          <span>{doctor.department ?? '—'}</span>
-                          <span className="table-muted">{doctor.city ?? '—'}</span>
+                          <div>
+                            <span>{doctor.department ?? '—'}</span>
+                            <span className="table-muted">{doctor.city ?? '—'}</span>
+                          </div>
                         </td>
                         <td data-label="Visibility">
                           <VisibilityPill visible={doctor.isVisible} />
@@ -292,8 +293,9 @@ export function AdminDoctorsPage() {
           <div className="admin-note">
             <ShieldCheck size={18} aria-hidden="true" />
             <p>
-              Hidden doctors stay in the admin table but disappear from patient
-              search and the public directory. Existing appointments are unaffected.
+              Hidden doctors stay in this table but disappear from patient search
+              and the public directory. Existing appointments are unaffected, and
+              every visibility change can be reversed with the same switch.
             </p>
           </div>
         </>

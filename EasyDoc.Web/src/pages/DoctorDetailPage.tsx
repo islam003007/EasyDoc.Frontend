@@ -35,13 +35,11 @@ import {
   toTimePayload,
   todayIso,
 } from '../lib/dates';
-import { shortId } from '../lib/format';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
 
 interface BookingSuccess {
   date: string;
   slot: Slot;
-  appointmentId?: string;
 }
 
 const PERIODS = ['Morning', 'Afternoon', 'Evening'] as const;
@@ -74,8 +72,8 @@ export function DoctorDetailPage() {
         date: input.date,
         startTime: toTimePayload(input.slot.startTime),
       }),
-    onSuccess: (appointmentId, input) => {
-      setSuccess({ date: input.date, slot: input.slot, appointmentId });
+    onSuccess: (_appointmentId, input) => {
+      setSuccess({ date: input.date, slot: input.slot });
       setSelectedSlot(null);
       void queryClient.invalidateQueries({
         queryKey: queryKeys.slots(doctorId, input.date),
@@ -232,14 +230,14 @@ export function DoctorDetailPage() {
                     <span>02</span>
                     <div>
                       <strong>Hold a slot</strong>
-                      <p>Only genuinely unbooked times are offered by the availability query.</p>
+                      <p>Only genuinely unbooked times appear in the day’s list.</p>
                     </div>
                   </li>
                   <li>
                     <span>03</span>
                     <div>
                       <strong>Send the request</strong>
-                      <p>The booking is created transactionally, then reviewed by the doctor.</p>
+                      <p>The doctor reviews every request before the visit is confirmed.</p>
                     </div>
                   </li>
                 </ol>
@@ -272,9 +270,6 @@ export function DoctorDetailPage() {
                     </h3>
                     <p>
                       Status is <strong>pending</strong> until the doctor accepts.
-                      {success.appointmentId ? (
-                        <> Reference {shortId(success.appointmentId)}.</>
-                      ) : null}
                     </p>
                     <Link to="/patient/appointments" className="text-link">
                       View my visits

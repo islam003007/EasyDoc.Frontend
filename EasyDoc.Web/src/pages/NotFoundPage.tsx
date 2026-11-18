@@ -31,7 +31,7 @@ export function NotFoundPage() {
           <p className="mono-label">Try a known destination</p>
           <h2>Return to the clinic map.</h2>
           <p>
-            Your session is still intact. Head back to your role’s workspace and
+            Your sign-in is still active. Head back to your role’s workspace and
             continue from there.
           </p>
         </div>

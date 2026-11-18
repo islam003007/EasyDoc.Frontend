@@ -48,11 +48,30 @@ prefix removed.
 ## Auth modes
 
 - **Demo roles:** `GET /auth/demo-users` → one-click `POST /auth/demo-login { key }` for patient
-  سارة محمد, doctor أحمد حسن, and Administrator.
+  سارة محمد, doctor أحمد حسن, and the **Demo admin** seat.
 - **Patient sign-in:** `/login/standard` → `POST /auth/login`, then `GET /auth/me`.
 - **Patient registration:** `/register` → `POST /patients/register`, then password login. New
   accounts are auto-confirmed in demo mode; real email delivery is not part of this build.
-- Doctor and administrator registration are not offered. Those seats remain seeded.
+- Doctor and demo-admin registration are not offered. Those seats remain seeded.
+
+## Demo security boundary
+
+The demo is a review sandbox, not a production authentication bypass.
+
+- `Demo:Enabled` is `false` in the base `appsettings.json` and turned on only by
+  `appsettings.Development.json`. A production deployment keeps it off, which disables
+  `/auth/demo-users` and `/auth/demo-login` entirely.
+- Demo login accepts only keys from a server-side allowlist and only signs in the matching seeded
+  account. It does not create users, elevate roles, or bypass API authorization policies.
+- Every API endpoint remains authoritative: admin routes still require the admin role, doctor routes
+  require the doctor role, and patient records are scoped to the signed-in patient.
+- The demo uses separate seeded sample data. Do not enter real or sensitive patient information;
+  demo data may be reset between reviews.
+- The demo admin seat is intentionally open so reviewers can reach every screen. It is limited to
+  safe, reversible work: doctor visibility toggles and the read-only patient directory. There are no
+  destructive admin actions in this client.
+- Demo-only behavior (auto-confirmed registration, log-only email) is documented above and should be
+  replaced before any real deployment.
 
 ## Routes
 
@@ -69,7 +88,7 @@ prefix removed.
 | `/doctor/profile` | Doctor | Public profile record |
 | `/admin` | Admin | Doctor directory and visibility |
 | `/admin/patients` | Admin | Patient directory |
-| `/account` | Any signed-in role | Session, shortcuts, switch role/sign out |
+| `/account` | Any signed-in role | Account details, shortcuts, switch role/sign out |
 
 Every protected route is guarded by `/auth/me`; API policies remain authoritative.
 
@@ -97,7 +116,9 @@ Responses are normalized tolerantly: arrays or paged `items`, numeric or string 
 - **Search:** debounced; URL stores `q`, `cityId`, `departmentId` for sharing/restoring.
 - **Availability:** next 10 days, native date for the API’s booking window, past times hidden;
   booking is select → confirm.
-- **Records stay readable:** monogram identities, mono record references, dates and slot times.
+- **Records stay readable:** monogram identities, dates and slot times, with a 12px floor for
+  functional labels, 13px secondary metadata, 14px table/control text, and 15px lead copy. The mono
+  labels were raised in size and weight rather than scaling the whole document.
 - **Doctor/patient transitions** match the API: doctors accept/cancel pending and complete scheduled;
   patients cancel pending or scheduled.
 - **Real states:** loading/empty/error/success, disabled pending actions, validation, reconnect

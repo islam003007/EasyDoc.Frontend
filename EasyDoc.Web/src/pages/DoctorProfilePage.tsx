@@ -40,7 +40,7 @@ export function DoctorProfilePage() {
             <em>face in the clinic.</em>
           </>
         }
-        lead="This is the directory record patients open when they find you. Availability is managed separately, on the schedule page."
+        lead="This is the profile patients see when they find you in the directory. Availability is managed separately, on the schedule page."
         actions={
           <Link to="/doctor/schedule" className="btn btn--secondary">
             <CalendarDays size={16} aria-hidden="true" />
@@ -140,7 +140,7 @@ export function DoctorProfilePage() {
                   </dd>
                 </div>
                 <div>
-                  <dt>Account email</dt>
+                  <dt>Contact email</dt>
                   <dd>{doctor.email ?? session?.email ?? '—'}</dd>
                 </div>
               </dl>
@@ -149,7 +149,7 @@ export function DoctorProfilePage() {
                 <p className="mono-label">Biography</p>
                 <p>
                   {doctor.description ??
-                    'No description is currently attached to this doctor record.'}
+                    'No biography has been added yet.'}
                 </p>
               </div>
             </section>
@@ -158,14 +158,10 @@ export function DoctorProfilePage() {
               <p className="eyebrow">As patients see it</p>
               <h2>How patients see you.</h2>
               <p>
-                The seeded profile-image URLs are placeholders, so this demo uses a
-                typographic monogram throughout the directory and booking flow.
+                This demo uses a typographic monogram throughout the directory and
+                booking flow instead of profile photos.
               </p>
               <dl className="mini-list">
-                <div>
-                  <dt>Record</dt>
-                  <dd className="code-value">{doctor.id}</dd>
-                </div>
                 <div>
                   <dt>Role</dt>
                   <dd>Doctor</dd>
@@ -173,6 +169,10 @@ export function DoctorProfilePage() {
                 <div>
                   <dt>Availability</dt>
                   <dd>Weekly hours + date overrides</dd>
+                </div>
+                <div>
+                  <dt>Directory</dt>
+                  <dd>Listed by an administrator</dd>
                 </div>
               </dl>
               <div className="side-card__actions">
@@ -194,7 +194,7 @@ export function DoctorProfilePage() {
           <section className="profile-callout">
             <Stethoscope size={18} aria-hidden="true" />
             <p>
-              The public directory is generated from visible doctor records. Hiding a
+              Patients only see profiles an administrator has listed. Hiding a
               profile is an administrator action, not a doctor one.
             </p>
           </section>

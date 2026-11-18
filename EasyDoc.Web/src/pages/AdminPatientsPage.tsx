@@ -9,7 +9,7 @@ import { Skeleton } from '../components/Loading';
 import { Monogram } from '../components/Monogram';
 import { PageHeader } from '../components/PageHeader';
 import { StatGrid } from '../components/StatGrid';
-import { shortId, plural } from '../lib/format';
+import { plural } from '../lib/format';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
 
 export function AdminPatientsPage() {
@@ -47,7 +47,7 @@ export function AdminPatientsPage() {
             <em>it serves.</em>
           </>
         }
-        lead="A read-only view of the seeded patient directory. Phone numbers and account emails come from the API's admin projection; no medical records are exposed here."
+        lead="A read-only view of the seeded patient directory — names, contact details, and account status. No medical records are exposed here."
         actions={
           <button
             type="button"
@@ -106,20 +106,20 @@ export function AdminPatientsPage() {
           <StatGrid
             stats={[
               {
-                label: 'Patient records',
+                label: 'Patients',
                 value: all.length,
-                note: 'All seeded identities',
+                note: 'Seeded sample accounts',
               },
               {
                 label: 'Active',
                 value: active,
-                note: 'Not soft-deleted',
+                note: 'Available in the directory',
                 tone: 'scheduled',
               },
               {
                 label: 'Archived',
                 value: archived,
-                note: 'Marked deleted',
+                note: 'Removed from active use',
                 tone: 'pending',
               },
             ]}
@@ -147,7 +147,7 @@ export function AdminPatientsPage() {
             <EmptyState
               icon={<UserRound />}
               title="No patients in the directory."
-              description="The API returned an empty patient list. Seed the database through the standard development setup."
+              description="The patient directory is empty. Try refreshing, or check that the demo data is loaded."
             />
           ) : filtered.length === 0 ? (
             <EmptyState
@@ -167,7 +167,7 @@ export function AdminPatientsPage() {
           ) : (
             <div className="table-card">
               <table className="data-table">
-                <caption className="sr-only">Seeded patient records</caption>
+                <caption className="sr-only">Seeded patient directory</caption>
                 <thead>
                   <tr>
                     <th scope="col">Patient</th>
@@ -184,15 +184,11 @@ export function AdminPatientsPage() {
                           <Monogram name={patient.personName} size="sm" />
                           <div>
                             <strong>{patient.personName}</strong>
-                            <span className="code-value">{shortId(patient.id)}</span>
                           </div>
                         </div>
                       </td>
                       <td data-label="Contact">
-                        <span>{patient.email || 'No email returned'}</span>
-                        <span className="table-muted">
-                          Account {shortId(patient.userId)}
-                        </span>
+                        <span>{patient.email || 'No email on file'}</span>
                       </td>
                       <td data-label="Phone">
                         <span className="code-value">{patient.phoneNumber ?? '—'}</span>
@@ -215,9 +211,9 @@ export function AdminPatientsPage() {
           <div className="admin-note">
             <ShieldCheck size={18} aria-hidden="true" />
             <p>
-              This demo reads the patient directory only. Patient self-registration
-              creates new accounts, but profile images, medical history, and
-              destructive admin actions remain outside the portfolio scope.
+              This sandbox reads the patient directory only. Patient
+              self-registration can create new accounts, but medical history,
+              profile uploads, and destructive admin actions stay outside the demo.
             </p>
           </div>
         </>

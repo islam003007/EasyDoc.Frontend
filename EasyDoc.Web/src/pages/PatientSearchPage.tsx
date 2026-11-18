@@ -177,7 +177,7 @@ export function PatientSearchPage() {
           type="search"
           value={term}
           onChange={(event) => setTerm(event.target.value)}
-          placeholder="Try a name, specialty, or Arabic spelling"
+          placeholder="Try a name or specialty"
           autoComplete="off"
         />
         {term ? (

@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   ArrowRight,
   ArrowUpRight,
+  Info,
   LogIn,
   ShieldCheck,
   Stethoscope,
@@ -18,7 +19,7 @@ import { EmptyState } from '../components/EmptyState';
 import { ErrorPanel } from '../components/ErrorPanel';
 import { Skeleton, Spinner } from '../components/Loading';
 import { Monogram } from '../components/Monogram';
-import { roleBlurb, roleHome, roleLabel } from '../lib/format';
+import { roleBlurb, roleHome } from '../lib/format';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
 
 const ROLE_ORDER: Role[] = ['patient', 'doctor', 'admin', 'unknown'];
@@ -26,8 +27,15 @@ const ROLE_ORDER: Role[] = ['patient', 'doctor', 'admin', 'unknown'];
 const ROLE_TITLE: Record<Role, string> = {
   patient: 'I’m here for care',
   doctor: 'I’m here to practise',
-  admin: 'I run the network',
+  admin: 'A sandbox review seat',
   unknown: 'Another demo seat',
+};
+
+const ROLE_CARD_LABEL: Record<Role, string> = {
+  patient: 'Patient',
+  doctor: 'Doctor',
+  admin: 'Demo admin',
+  unknown: 'Demo guest',
 };
 
 const ROLE_ICON: Record<Role, LucideIcon> = {
@@ -65,7 +73,7 @@ function DemoUserButton({
     >
       {pending ? (
         <span className="demo-user__spinner">
-          <Spinner label="Opening demo session" />
+          <Spinner label="Opening demo seat" />
         </span>
       ) : (
         <Monogram name={user.label} size="sm" />
@@ -101,7 +109,7 @@ export function LoginPage() {
       const next = await refreshSession();
       if (!next) {
         throw new Error(
-          'The demo sign-in completed, but the session cookie was not visible. Check that cookies are enabled for this site.',
+          'We couldn’t finish opening this demo seat. Refresh the page and try again.',
         );
       }
       return next;
@@ -177,7 +185,7 @@ export function LoginPage() {
 
         <div className="login-brand-panel__foot">
           <span>Egypt care network</span>
-          <span className="mono-label">Seeded clinic data · demo accounts</span>
+          <span className="mono-label">Sample clinic data · demo accounts</span>
         </div>
       </section>
 
@@ -189,14 +197,32 @@ export function LoginPage() {
           </p>
           <h2>Choose a demo seat.</h2>
           <p className="login-panel__lead">
-            One click opens a seeded patient, doctor, or administrator session.
-            Patient email sign-in and self-registration are also available below.
+            One click opens a seeded patient, doctor, or demo admin seat. Patient
+            email sign-in and self-registration are also available below.
           </p>
+
+          <div className="demo-notice">
+            <span className="demo-notice__icon" aria-hidden="true">
+              <Info size={16} />
+            </span>
+            <div className="demo-notice__body">
+              <p className="demo-notice__title">A demo clinic, open for review.</p>
+              <ul>
+                <li>Sample data only — no live patients or real records.</li>
+                <li>
+                  The demo admin seat is intentionally open so every screen can be
+                  reviewed.
+                </li>
+                <li>Please don’t enter real or sensitive patient information.</li>
+                <li>Demo data may be reset between reviews.</li>
+              </ul>
+            </div>
+          </div>
 
           {login.isError ? (
             <ErrorPanel
               error={login.error}
-              title="Could not start the demo session"
+              title="Could not open this demo seat"
               compact
             />
           ) : null}
@@ -224,8 +250,8 @@ export function LoginPage() {
                 }}
               />
               <p className="helper-note">
-                Demo access must be enabled on the API (<code>Demo:Enabled</code>),
-                and the API must be running behind the <code>/api</code> proxy.
+                Demo seats are unavailable right now. Make sure the demo service is
+                running, then try again.
               </p>
             </>
           ) : null}
@@ -234,7 +260,7 @@ export function LoginPage() {
             <EmptyState
               icon={<ShieldCheck />}
               title="No demo seats found"
-              description="The API answered, but did not return any seeded demo accounts. Check the demo configuration and seed data."
+              description="The demo service answered, but no seeded seats were found. Try again once the demo data is available."
             />
           ) : null}
 
@@ -248,16 +274,27 @@ export function LoginPage() {
                       <span className="role-card__icon" aria-hidden="true">
                         <Icon size={18} />
                       </span>
-                      <span className="role-card__role">{roleLabel(role)}</span>
+                      <span className="role-card__role">{ROLE_CARD_LABEL[role]}</span>
                       <span className="role-card__index">{ROLE_INDEX[role]}</span>
                     </header>
                     <h3>{ROLE_TITLE[role]}</h3>
                     <p className="role-card__blurb">{roleBlurb(role)}</p>
+                    {role === 'admin' ? (
+                      <p className="role-card__sandbox">
+                        <ShieldCheck size={14} aria-hidden="true" />
+                        Open on purpose for portfolio review. Directory changes are
+                        limited to safe, reversible visibility toggles.
+                      </p>
+                    ) : null}
                     <div className="role-card__users">
                       {users.map((user) => (
                         <DemoUserButton
                           key={user.key}
-                          user={user}
+                          user={
+                            role === 'admin'
+                              ? { ...user, label: 'Demo admin' }
+                              : user
+                          }
                           pending={
                             login.isPending && login.variables?.key === user.key
                           }
@@ -296,9 +333,9 @@ export function LoginPage() {
           </div>
 
           <p className="login-panel__fineprint">
-            Demo seats are selected by the server. Patient accounts use the password
-            chosen at registration; doctor and administrator accounts remain
-            demo-only. Patient-created account data stays in the demo database.
+            Patient accounts use the password chosen at registration. Doctor and
+            admin seats are demo accounts, and everything here is sample data that
+            may be reset.
           </p>
         </div>
       </section>

@@ -82,18 +82,14 @@ export function SessionGate({ children }: { children: ReactNode }) {
           <p className="mono-label">EasyDoc · connection</p>
           <h1>We can’t reach EasyDoc right now.</h1>
           <p className="fatal-screen__lead">
-            The frontend is running, but it could not read the current session.
-            Start the EasyDoc API on port 5215 and try again.
+            The clinic service did not answer. Check that the demo service is
+            running, then try again.
           </p>
           <ErrorPanel
             error={error}
-            title="Session check failed"
+            title="Connection check failed"
             onRetry={retry}
           />
-          <p className="fatal-screen__hint">
-            <code>dotnet run --project EasyDoc.Api</code>
-            <span>API target: /api → http://localhost:5215</span>
-          </p>
         </div>
       </div>
     );

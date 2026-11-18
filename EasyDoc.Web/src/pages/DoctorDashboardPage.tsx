@@ -37,7 +37,7 @@ import {
   relativeDateLabel,
   relativeDayOnly,
 } from '../lib/dates';
-import { plural, shortId } from '../lib/format';
+import { plural } from '../lib/format';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
 
 type BoardFilter = 'all' | 'pending' | 'scheduled' | 'closed';
@@ -80,10 +80,10 @@ function BoardRow({
           </span>
           <StatusPill status={appointment.status} />
         </div>
-        <h3>{appointment.patientName ?? `Patient ${shortId(appointment.patientId)}`}</h3>
-        <p className="board-row__meta" title={appointment.patientId}>
-          Patient record {shortId(appointment.patientId)}
-        </p>
+        <h3>{appointment.patientName ?? 'Patient'}</h3>
+        {appointment.patientName ? null : (
+          <p className="board-row__meta">Patient name not on this request</p>
+        )}
 
         {appointment.examination ? (
           <details className="visit-notes">
@@ -379,7 +379,7 @@ export function DoctorDashboardPage() {
               {
                 label: 'Completed',
                 value: counts.completed,
-                note: 'Visit notes on the record',
+                note: 'Visit notes saved',
                 tone: 'muted',
               },
             ]}
@@ -448,7 +448,7 @@ export function DoctorDashboardPage() {
               description={
                 filter === 'pending'
                   ? 'Every request has been answered. The board is clear.'
-                  : 'Switch to another filter to see the rest of the practice record.'
+                  : 'Switch to another filter to see the rest of the practice board.'
               }
               action={
                 <button
@@ -490,8 +490,8 @@ export function DoctorDashboardPage() {
           )}
 
           <p className="quiet-note board-summary">
-            {plural(counts.all, 'appointment')} loaded from the API. Patient names come
-            from the appointment contract; record references stay available for support.
+            {plural(counts.all, 'appointment')} on the board. New requests appear
+            here as soon as a patient books.
           </p>
         </>
       ) : null}
@@ -523,7 +523,7 @@ export function DoctorDashboardPage() {
         open={Boolean(completeTarget)}
         title="Close the visit."
         eyebrow="Visit notes"
-        description="Diagnosis and prescription are required. They are saved as the examination record."
+        description="Diagnosis and prescription are required. They are saved with the completed visit."
         onClose={() => {
           if (!complete.isPending) {
             setCompleteTarget(null);
@@ -563,8 +563,7 @@ export function DoctorDashboardPage() {
             <p className="modal-context">
               <span className="mono-label">Appointment</span>
               {formatDateLong(completeTarget.date)} ·{' '}
-              {formatTimeRange(completeTarget.startTime, completeTarget.endTime)} ·
-              patient {shortId(completeTarget.patientId)}
+              {formatTimeRange(completeTarget.startTime, completeTarget.endTime)}
             </p>
 
             {complete.isError ? (
