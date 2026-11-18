@@ -22,6 +22,7 @@ import { LoginPage } from './pages/LoginPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { PatientAppointmentsPage } from './pages/PatientAppointmentsPage';
 import { PatientSearchPage } from './pages/PatientSearchPage';
+import { RegisterPage } from './pages/RegisterPage';
 import { StandardLoginPage } from './pages/StandardLoginPage';
 
 class AppErrorBoundary extends Component<
@@ -44,10 +45,10 @@ class AppErrorBoundary extends Component<
         <div className="fatal-screen">
           <div className="fatal-screen__inner">
             <p className="mono-label">EasyDoc · interface error</p>
-            <h1>The chart got tangled.</h1>
+            <h1>Something went wrong on this page.</h1>
             <p className="fatal-screen__lead">
-              A screen failed to render. Your demo session is still on the server;
-              reload to try the route again.
+              A screen failed to render. Your session is still on the server; reload
+              to try the route again.
             </p>
             <div className="page-actions">
               <button
@@ -90,6 +91,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/login/standard" element={<StandardLoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
       <Route path="/" element={<RootRedirect />} />
 
       <Route

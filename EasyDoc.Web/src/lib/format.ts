@@ -66,13 +66,13 @@ export function plural(count: number, singular: string, pluralForm?: string): st
   return `${count} ${count === 1 ? singular : (pluralForm ?? `${singular}s`)}`;
 }
 
-export type MonogramTone = 'forest' | 'clay' | 'cobalt' | 'sand';
+export type MonogramTone = 'blush' | 'sky' | 'indigo' | 'lilac';
 
 export function monogramTone(value: string): MonogramTone {
   let hash = 0;
   for (let index = 0; index < value.length; index += 1) {
     hash = (hash * 31 + value.charCodeAt(index)) % 9973;
   }
-  const tones: MonogramTone[] = ['forest', 'clay', 'cobalt', 'sand'];
+  const tones: MonogramTone[] = ['blush', 'sky', 'indigo', 'lilac'];
   return tones[hash % tones.length];
 }

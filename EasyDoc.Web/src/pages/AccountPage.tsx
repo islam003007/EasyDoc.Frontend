@@ -94,7 +94,7 @@ export function AccountPage() {
             <em>place in the clinic.</em>
           </>
         }
-        lead="This session is cookie-based and role-scoped. Nothing here is a real identity."
+        lead="Your session is cookie-based and role-scoped. Patient accounts use the password chosen at registration; demo seats are one click."
         actions={
           <button
             type="button"
@@ -176,10 +176,11 @@ export function AccountPage() {
       <section className="account-note">
         <div>
           <p className="eyebrow">Switching seats</p>
-          <h2>Hand the clipboard to another role.</h2>
+          <h2>Switch roles any time.</h2>
           <p>
-            Signing out clears the demo session and every cached query, then returns
-            to the role picker. No password is involved at any point.
+            Signing out clears the session and every cached query, then returns to
+            the sign-in screen. Demo seats open in one click; patient accounts use
+            their own password.
           </p>
         </div>
         <button
@@ -188,7 +189,7 @@ export function AccountPage() {
           onClick={() => logout.mutate()}
           disabled={logout.isPending}
         >
-          Switch demo role
+          Switch role
           <ArrowRight size={16} aria-hidden="true" />
         </button>
       </section>

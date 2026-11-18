@@ -34,7 +34,7 @@ import {
   isUpcomingAppointment,
   relativeDateLabel,
 } from '../lib/dates';
-import { shortId } from '../lib/format';
+import { shortId, plural } from '../lib/format';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
 
 interface AppointmentCardProps {
@@ -325,7 +325,7 @@ export function PatientAppointmentsPage() {
                 <p className="eyebrow">Record</p>
                 <h2 id="history-heading">Earlier & closed.</h2>
               </div>
-              <p className="mono-label">{history.length} visits</p>
+              <p className="mono-label">{plural(history.length, 'visit')}</p>
             </div>
 
             {history.length === 0 && total === 0 ? (

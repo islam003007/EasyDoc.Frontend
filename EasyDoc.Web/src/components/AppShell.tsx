@@ -61,9 +61,9 @@ export function AppShell() {
         <div className="utility-bar">
           <div className="utility-bar__left">
             <span className="utility-bar__dot" aria-hidden="true" />
-            <span>Portfolio demo</span>
+            <span>EasyDoc demo workspace</span>
             <span className="utility-bar__rule" aria-hidden="true" />
-            <span className="utility-bar__muted">Seeded clinic data only</span>
+            <span className="utility-bar__muted">Seeded clinic data</span>
           </div>
           <div className="utility-bar__right">
             <span className="utility-bar__muted">Signed in as {session.email}</span>
@@ -121,7 +121,7 @@ export function AppShell() {
           </span>
         </div>
         <p className="mono-label">
-          Role-based portfolio demo · no real patient data
+          Role-based portfolio demo · seeded clinic records
         </p>
       </footer>
     </div>

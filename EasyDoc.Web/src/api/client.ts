@@ -42,34 +42,50 @@ function textOf(value: unknown): string | undefined {
     : undefined;
 }
 
+function collectMessages(value: unknown, depth = 0): string[] {
+  if (depth > 4 || value === null || value === undefined) return [];
+
+  if (typeof value === 'string') {
+    const message = value.trim();
+    return message.length > 0 ? [message] : [];
+  }
+
+  if (Array.isArray(value)) {
+    return value.flatMap((entry) => collectMessages(entry, depth + 1));
+  }
+
+  if (typeof value === 'object') {
+    const record = value as Record<string, unknown>;
+    const direct =
+      textOf(record.description) ??
+      textOf(record.message) ??
+      textOf(record.detail);
+    if (direct) return [direct];
+
+    return Object.values(record).flatMap((entry) =>
+      collectMessages(entry, depth + 1),
+    );
+  }
+
+  return [];
+}
+
+function uniqueMessages(messages: string[]): string[] {
+  return Array.from(new Set(messages.map((message) => message.trim()).filter(Boolean)));
+}
+
 function validationErrorsOf(value: unknown): Record<string, string[]> | undefined {
   if (!value || typeof value !== 'object') return undefined;
 
   if (Array.isArray(value)) {
-    const messages = value
-      .map((entry) => {
-        if (typeof entry === 'string') return entry;
-        if (entry && typeof entry === 'object') {
-          const record = entry as Record<string, unknown>;
-          return textOf(record.description) ?? textOf(record.message);
-        }
-        return undefined;
-      })
-      .filter((entry): entry is string => Boolean(entry));
-
+    const messages = uniqueMessages(collectMessages(value));
     return messages.length > 0 ? { request: messages } : undefined;
   }
 
   const result: Record<string, string[]> = {};
   for (const [key, messages] of Object.entries(value)) {
-    if (Array.isArray(messages)) {
-      const strings = messages.filter(
-        (message): message is string => typeof message === 'string',
-      );
-      if (strings.length > 0) result[key] = strings;
-    } else if (typeof messages === 'string') {
-      result[key] = [messages];
-    }
+    const strings = uniqueMessages(collectMessages(messages));
+    if (strings.length > 0) result[key] = strings;
   }
   return Object.keys(result).length > 0 ? result : undefined;
 }
@@ -184,11 +200,33 @@ export function withQuery(
 
 export function describeError(error: unknown): string {
   if (isApiError(error)) {
-    if (error.status === 401) return 'Your demo session has ended. Sign in again.';
+    if (error.status === 401) return 'Your session has ended. Sign in again.';
     if (error.status === 403) return 'This action is not allowed for your role.';
     if (error.status === 404) return 'That record could not be found.';
     return error.detail ?? error.message;
   }
   if (error instanceof Error) return error.message;
   return 'Something unexpected happened. Please try again.';
+}
+
+/**
+ * Form submissions care about the concrete validation messages the API returns,
+ * which are more useful than the generic problem title/detail.
+ */
+export function describeFormError(error: unknown): string {
+  if (isApiError(error)) {
+    const validation = error.validationErrors;
+    if (validation) {
+      const messages = Array.from(
+        new Set(
+          Object.values(validation)
+            .flat()
+            .map((message) => message.trim())
+            .filter(Boolean),
+        ),
+      );
+      if (messages.length > 0) return messages.join(' ');
+    }
+  }
+  return describeError(error);
 }

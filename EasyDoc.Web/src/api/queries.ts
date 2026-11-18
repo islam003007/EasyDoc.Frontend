@@ -75,6 +75,45 @@ export async function demoLogin(key: string): Promise<void> {
   });
 }
 
+export interface PasswordLoginInput {
+  email: string;
+  password: string;
+}
+
+export async function passwordLogin(input: PasswordLoginInput): Promise<void> {
+  await apiRequest<unknown>('/auth/login', {
+    method: 'POST',
+    body: {
+      email: input.email.trim(),
+      password: input.password,
+    },
+  });
+}
+
+export interface PatientRegistrationInput {
+  email: string;
+  password: string;
+  passwordConfirm: string;
+  personName: string;
+  phoneNumber: string;
+}
+
+export async function registerPatient(
+  input: PatientRegistrationInput,
+): Promise<string | undefined> {
+  const payload = await apiRequest<unknown>('/patients/register', {
+    method: 'POST',
+    body: {
+      email: input.email.trim(),
+      password: input.password,
+      passwordConfirm: input.passwordConfirm,
+      personName: input.personName.trim(),
+      phoneNumber: input.phoneNumber.trim(),
+    },
+  });
+  return typeof payload === 'string' ? payload : undefined;
+}
+
 export async function logout(): Promise<void> {
   await apiRequest<unknown>('/auth/logout', { method: 'POST' });
 }

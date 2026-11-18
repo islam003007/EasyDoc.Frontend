@@ -156,7 +156,7 @@ export function DoctorProfilePage() {
 
             <aside className="side-card side-card--sticky">
               <p className="eyebrow">As patients see it</p>
-              <h2>Monogram, not a stock photo.</h2>
+              <h2>How patients see you.</h2>
               <p>
                 The seeded profile-image URLs are placeholders, so this demo uses a
                 typographic monogram throughout the directory and booking flow.
@@ -186,8 +186,7 @@ export function DoctorProfilePage() {
                 </Link>
               </div>
               <p className="helper-note">
-                Profile editing and uploads are out of scope for this demo, just like
-                registration and email.
+                Profile editing and uploads are out of scope for this demo.
               </p>
             </aside>
           </div>

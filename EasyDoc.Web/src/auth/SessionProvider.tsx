@@ -80,7 +80,7 @@ export function SessionGate({ children }: { children: ReactNode }) {
       <div className="fatal-screen">
         <div className="fatal-screen__inner">
           <p className="mono-label">EasyDoc · connection</p>
-          <h1>The clinic API is out of reach.</h1>
+          <h1>We can’t reach EasyDoc right now.</h1>
           <p className="fatal-screen__lead">
             The frontend is running, but it could not read the current session.
             Start the EasyDoc API on port 5215 and try again.

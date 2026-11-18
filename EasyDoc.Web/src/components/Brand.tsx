@@ -13,10 +13,10 @@ export function Brand({
     <Link
       to={to}
       className={`brand ${compact ? 'brand--compact' : ''} ${light ? 'brand--light' : ''}`.trim()}
-      aria-label="EasyDoc"
+      aria-label="EasyDoc home"
     >
       <span className="brand__mark" aria-hidden="true">
-        E
+        <img src="/brand/easydoc-mark.png" alt="" />
       </span>
       <span className="brand__text">
         <span className="brand__word">EasyDoc</span>

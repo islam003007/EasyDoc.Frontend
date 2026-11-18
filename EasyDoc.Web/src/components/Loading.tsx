@@ -53,9 +53,9 @@ export function AppLoading() {
   return (
     <div className="app-loading">
       <div className="app-loading__mark" aria-hidden="true">
-        E
+        <img src="/brand/easydoc-mark.png" alt="" />
       </div>
-      <p className="mono-label">EasyDoc · opening the clinic</p>
+      <p className="mono-label">EasyDoc · getting ready</p>
       <Spinner label="Loading EasyDoc" />
     </div>
   );

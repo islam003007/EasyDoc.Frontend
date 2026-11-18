@@ -2,24 +2,21 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   ArrowRight,
   ArrowUpRight,
-  KeyRound,
+  LogIn,
   ShieldCheck,
   Stethoscope,
+  UserPlus,
   UserRound,
   type LucideIcon,
 } from 'lucide-react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import type { DemoUser, Role } from '../api/contracts';
-import {
-  demoLogin,
-  fetchDemoUsers,
-  queryKeys,
-} from '../api/queries';
+import { demoLogin, fetchDemoUsers, queryKeys } from '../api/queries';
 import { useSession } from '../auth/SessionProvider';
 import { Brand } from '../components/Brand';
 import { EmptyState } from '../components/EmptyState';
 import { ErrorPanel } from '../components/ErrorPanel';
-import { Spinner, Skeleton } from '../components/Loading';
+import { Skeleton, Spinner } from '../components/Loading';
 import { Monogram } from '../components/Monogram';
 import { roleBlurb, roleHome, roleLabel } from '../lib/format';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
@@ -37,7 +34,7 @@ const ROLE_ICON: Record<Role, LucideIcon> = {
   patient: UserRound,
   doctor: Stethoscope,
   admin: ShieldCheck,
-  unknown: KeyRound,
+  unknown: UserRound,
 };
 
 const ROLE_INDEX: Record<Role, string> = {
@@ -128,50 +125,59 @@ export function LoginPage() {
       <section className="login-brand-panel">
         <div className="login-brand-panel__top">
           <Brand to="/login" light />
-          <span className="login-brand-panel__edition">Demo edition · 2026</span>
+          <span className="login-brand-panel__edition">Portfolio demo · 2026</span>
         </div>
 
         <div className="login-brand-panel__copy">
-          <p className="eyebrow eyebrow--light">EasyDoc · scheduling study</p>
+          <p className="eyebrow eyebrow--light">EasyDoc · care scheduling</p>
           <h1>
             Care,
             <br />
             <em>scheduled well.</em>
           </h1>
           <p>
-            A working clinic directory built around real availability. Search the
-            network, hold a time, or run the practice — from one of three seeded
-            seats.
+            A working clinic directory built around real availability. Find a doctor,
+            hold a time, or run the practice — from a seeded demo seat or your own
+            patient account.
           </p>
+          <div className="login-brand-chips" aria-label="Demo highlights">
+            <span>Egypt care network</span>
+            <span>Arabic + English</span>
+            <span>Live availability</span>
+          </div>
+        </div>
+
+        <div className="login-brand-panel__mark" aria-hidden="true">
+          <img src="/brand/easydoc-mark.png" alt="" />
         </div>
 
         <ol className="login-steps">
           <li>
             <span>01</span>
             <div>
-              <strong>Find the right hands</strong>
-              <p>Search by name, city, or department in Arabic or English.</p>
+              <strong>Find the right care</strong>
+              <p>Search by name, city, or specialty in Arabic or English.</p>
             </div>
           </li>
           <li>
             <span>02</span>
             <div>
-              <strong>See the real week</strong>
-              <p>Availability comes from the API’s schedules, overrides, and bookings.</p>
+              <strong>Pick a real time</strong>
+              <p>Open slots come from weekly hours, date overrides, and bookings.</p>
             </div>
           </li>
           <li>
             <span>03</span>
             <div>
-              <strong>Move the day forward</strong>
-              <p>Patients book. Doctors decide. Administrators keep the directory honest.</p>
+              <strong>Keep the day moving</strong>
+              <p>Patients book. Doctors decide. Admins keep the directory honest.</p>
             </div>
           </li>
         </ol>
 
         <div className="login-brand-panel__foot">
           <span>Egypt care network</span>
-          <span className="mono-label">No passwords · seeded data only</span>
+          <span className="mono-label">Seeded clinic data · demo accounts</span>
         </div>
       </section>
 
@@ -181,10 +187,10 @@ export function LoginPage() {
             <span className="eyebrow__index">→</span>
             Demo access
           </p>
-          <h2>Choose a demo role.</h2>
+          <h2>Choose a demo seat.</h2>
           <p className="login-panel__lead">
-            One click opens a seeded session. The API confirms the identity; this
-            client never asks for a password.
+            One click opens a seeded patient, doctor, or administrator session.
+            Patient email sign-in and self-registration are also available below.
           </p>
 
           {login.isError ? (
@@ -239,11 +245,11 @@ export function LoginPage() {
                 return (
                   <article key={role} className={`role-card role-card--${role}`}>
                     <header className="role-card__head">
-                      <span className="role-card__index">{ROLE_INDEX[role]}</span>
-                      <span className="role-card__role">
-                        <Icon size={15} aria-hidden="true" />
-                        {roleLabel(role)}
+                      <span className="role-card__icon" aria-hidden="true">
+                        <Icon size={18} />
                       </span>
+                      <span className="role-card__role">{roleLabel(role)}</span>
+                      <span className="role-card__index">{ROLE_INDEX[role]}</span>
                     </header>
                     <h3>{ROLE_TITLE[role]}</h3>
                     <p className="role-card__blurb">{roleBlurb(role)}</p>
@@ -266,20 +272,33 @@ export function LoginPage() {
             </div>
           ) : null}
 
-          <div className="login-standard">
-            <div>
-              <strong>Need the standard account flow?</strong>
-              <p>Password sign-in exists on the API, but is intentionally outside this demo.</p>
-            </div>
-            <Link to="/login/standard" className="text-link">
-              Standard sign-in
-              <ArrowUpRight size={14} aria-hidden="true" />
+          <div className="login-alt-grid">
+            <Link to="/login/standard" className="login-alt">
+              <span className="login-alt__icon" aria-hidden="true">
+                <LogIn size={18} />
+              </span>
+              <span className="login-alt__copy">
+                <strong>Sign in</strong>
+                <small>Email and password for registered patients.</small>
+              </span>
+              <ArrowUpRight size={17} aria-hidden="true" />
+            </Link>
+            <Link to="/register" className="login-alt login-alt--pink">
+              <span className="login-alt__icon" aria-hidden="true">
+                <UserPlus size={18} />
+              </span>
+              <span className="login-alt__copy">
+                <strong>Create a patient account</strong>
+                <small>Self-register in under a minute.</small>
+              </span>
+              <ArrowUpRight size={17} aria-hidden="true" />
             </Link>
           </div>
 
           <p className="login-panel__fineprint">
-            Demo accounts are selected by the server. No registration, email
-            confirmation, uploads, or real patient data are part of this build.
+            Demo seats are selected by the server. Patient accounts use the password
+            chosen at registration; doctor and administrator accounts remain
+            demo-only. Patient-created account data stays in the demo database.
           </p>
         </div>
       </section>

@@ -215,9 +215,9 @@ export function AdminPatientsPage() {
           <div className="admin-note">
             <ShieldCheck size={18} aria-hidden="true" />
             <p>
-              This demo reads the patient directory only. Registration, medical
-              history, profile images, and destructive admin actions are outside the
-              portfolio scope.
+              This demo reads the patient directory only. Patient self-registration
+              creates new accounts, but profile images, medical history, and
+              destructive admin actions remain outside the portfolio scope.
             </p>
           </div>
         </>

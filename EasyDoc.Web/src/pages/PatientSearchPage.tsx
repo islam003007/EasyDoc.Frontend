@@ -155,7 +155,7 @@ export function PatientSearchPage() {
         </div>
         <div className="search-hero__stamp" aria-hidden="true">
           <span>Egypt</span>
-          <strong>ED</strong>
+          <img src="/brand/easydoc-mark.png" alt="" />
           <span>Care network</span>
         </div>
       </section>
@@ -273,7 +273,9 @@ export function PatientSearchPage() {
             <h2 id="results-heading">
               {doctors.isPending
                 ? 'Looking through the clinic…'
-                : `${results.length} ${results.length === 1 ? 'doctor' : 'doctors'}`}
+                : doctors.isError
+                  ? 'Directory unavailable'
+                  : `${results.length} ${results.length === 1 ? 'doctor' : 'doctors'}`}
             </h2>
           </div>
           <p className="results-head__note">
