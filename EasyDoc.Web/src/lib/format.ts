@@ -16,7 +16,8 @@ export function initials(name: string): string {
 
 export function shortId(value: string | undefined): string {
   if (!value) return 'unknown';
-  return value.replace(/-/g, '').slice(0, 8).toUpperCase();
+  // UUIDv7 values in the seed share a timestamp prefix; the tail stays distinct.
+  return value.replace(/-/g, '').slice(-8).toUpperCase();
 }
 
 export function roleLabel(role: Role): string {

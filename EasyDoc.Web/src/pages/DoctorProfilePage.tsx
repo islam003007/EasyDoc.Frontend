@@ -1,32 +1,109 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowRight,
   CalendarDays,
   Clock3,
   Mail,
   MapPin,
+  Pencil,
   Phone,
   Stethoscope,
 } from 'lucide-react';
+import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchDoctorMe, queryKeys } from '../api/queries';
+import { describeError } from '../api/client';
+import type { DoctorDetail } from '../api/contracts';
+import {
+  fetchDoctorMe,
+  queryKeys,
+  updateDoctorMe,
+} from '../api/queries';
 import { useSession } from '../auth/SessionProvider';
 import { ErrorPanel } from '../components/ErrorPanel';
-import { Skeleton } from '../components/Loading';
+import { Spinner, Skeleton } from '../components/Loading';
+import { Modal } from '../components/Modal';
 import { Monogram } from '../components/Monogram';
+import { Notice } from '../components/Notice';
 import { PageHeader } from '../components/PageHeader';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
 
 export function DoctorProfilePage() {
   useDocumentTitle('My profile');
   const { session } = useSession();
+  const queryClient = useQueryClient();
+  const [editOpen, setEditOpen] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [personName, setPersonName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [clinicAddress, setClinicAddress] = useState('');
+  const [duration, setDuration] = useState('30');
+  const [description, setDescription] = useState('');
+  const [profilePictureUrl, setProfilePictureUrl] = useState('');
 
   const doctorQuery = useQuery({
     queryKey: queryKeys.doctorMe,
     queryFn: ({ signal }) => fetchDoctorMe(signal),
   });
 
+  const saveProfile = useMutation({
+    mutationFn: () =>
+      updateDoctorMe({
+        personName,
+        phoneNumber,
+        clinicAddress,
+        defaultAppointmentTimeInMinutes: Number(duration),
+        description,
+        profilePictureUrl,
+      }),
+    onSuccess: () => {
+      if (doctorQuery.data) {
+        const updated: DoctorDetail = {
+          ...doctorQuery.data,
+          personName: personName.trim(),
+          phoneNumber: phoneNumber.trim(),
+          clinicAddress: clinicAddress.trim(),
+          defaultAppointmentTimeInMinutes: Number(duration),
+          description: description.trim() || undefined,
+          profilePictureUrl: profilePictureUrl.trim() || undefined,
+        };
+        queryClient.setQueryData(queryKeys.doctorMe, updated);
+        queryClient.setQueryData(queryKeys.doctor(updated.id), updated);
+      }
+      setEditOpen(false);
+      setNotice('Your public profile was updated.');
+      void queryClient.invalidateQueries({ queryKey: queryKeys.session });
+    },
+  });
+
   const doctor = doctorQuery.data;
+  const numericDuration = Number(duration);
+  const durationValid =
+    Number.isFinite(numericDuration) &&
+    numericDuration >= 10 &&
+    numericDuration <= 120;
+  const canSave =
+    personName.trim().length > 0 &&
+    phoneNumber.trim().length > 0 &&
+    clinicAddress.trim().length > 0 &&
+    durationValid;
+
+  function openEdit() {
+    if (!doctor) return;
+    setPersonName(doctor.personName);
+    setPhoneNumber(doctor.phoneNumber ?? '');
+    setClinicAddress(doctor.clinicAddress ?? '');
+    setDuration(String(doctor.defaultAppointmentTimeInMinutes || 30));
+    setDescription(doctor.description ?? '');
+    setProfilePictureUrl(doctor.profilePictureUrl ?? '');
+    saveProfile.reset();
+    setEditOpen(true);
+  }
+
+  function submitProfile(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!canSave) return;
+    saveProfile.mutate();
+  }
 
   return (
     <div className="page page--doctor-profile">
@@ -40,14 +117,29 @@ export function DoctorProfilePage() {
             <em>face in the clinic.</em>
           </>
         }
-        lead="This is the profile patients see when they find you in the directory. Availability is managed separately, on the schedule page."
+        lead="This is the profile patients see when they find you in the directory. Edit the public record here; availability is managed separately, on the schedule page."
         actions={
-          <Link to="/doctor/schedule" className="btn btn--secondary">
-            <CalendarDays size={16} aria-hidden="true" />
-            Manage schedule
-          </Link>
+          <>
+            <button
+              type="button"
+              className="btn btn--secondary"
+              onClick={openEdit}
+              disabled={!doctor}
+            >
+              <Pencil size={16} aria-hidden="true" />
+              Edit profile
+            </button>
+            <Link to="/doctor/schedule" className="btn btn--secondary">
+              <CalendarDays size={16} aria-hidden="true" />
+              Manage schedule
+            </Link>
+          </>
         }
       />
+
+      {notice ? (
+        <Notice onDismiss={() => setNotice(null)}>{notice}</Notice>
+      ) : null}
 
       {doctorQuery.isError ? (
         <ErrorPanel
@@ -159,7 +251,8 @@ export function DoctorProfilePage() {
               <h2>How patients see you.</h2>
               <p>
                 This demo uses a typographic monogram throughout the directory and
-                booking flow instead of profile photos.
+                booking flow; a profile picture URL is stored with the record for
+                other clients.
               </p>
               <dl className="mini-list">
                 <div>
@@ -186,7 +279,8 @@ export function DoctorProfilePage() {
                 </Link>
               </div>
               <p className="helper-note">
-                Profile editing and uploads are out of scope for this demo.
+                Profile photos are managed by URL. Uploads are out of scope for
+                this demo.
               </p>
             </aside>
           </div>
@@ -200,6 +294,139 @@ export function DoctorProfilePage() {
           </section>
         </>
       ) : null}
+
+      <Modal
+        open={editOpen}
+        title="Edit your profile."
+        eyebrow="Doctor · Public record"
+        description="These details appear in the patient directory. City and specialty are managed by the clinic administrator."
+        onClose={() => {
+          if (!saveProfile.isPending) {
+            setEditOpen(false);
+            saveProfile.reset();
+          }
+        }}
+        wide
+        footer={
+          <>
+            <button
+              type="button"
+              className="btn btn--ghost"
+              onClick={() => {
+                setEditOpen(false);
+                saveProfile.reset();
+              }}
+              disabled={saveProfile.isPending}
+            >
+              Keep current profile
+            </button>
+            <button
+              type="submit"
+              form="doctor-profile-form"
+              className="btn btn--primary"
+              disabled={!canSave || saveProfile.isPending}
+            >
+              {saveProfile.isPending ? <Spinner /> : <Pencil size={15} aria-hidden="true" />}
+              {saveProfile.isPending ? 'Saving profile…' : 'Save profile'}
+            </button>
+          </>
+        }
+      >
+        {doctor ? (
+          <form
+            id="doctor-profile-form"
+            className="form-stack"
+            onSubmit={submitProfile}
+          >
+            <p className="modal-context">
+              <span className="mono-label">Account email</span>
+              {doctor.email ?? session?.email ?? '—'}
+            </p>
+
+            <div className="field-row">
+              <label className="field">
+                <span>Name *</span>
+                <input
+                  value={personName}
+                  onChange={(event) => setPersonName(event.target.value)}
+                  maxLength={200}
+                  required
+                  data-autofocus
+                />
+              </label>
+              <label className="field">
+                <span>Phone *</span>
+                <input
+                  value={phoneNumber}
+                  onChange={(event) => setPhoneNumber(event.target.value)}
+                  inputMode="tel"
+                  required
+                />
+              </label>
+            </div>
+
+            <div className="field-row">
+              <label className="field">
+                <span>Clinic address *</span>
+                <input
+                  value={clinicAddress}
+                  onChange={(event) => setClinicAddress(event.target.value)}
+                  required
+                />
+              </label>
+              <label className="field">
+                <span>Default visit length *</span>
+                <input
+                  type="number"
+                  value={duration}
+                  onChange={(event) => setDuration(event.target.value)}
+                  min={10}
+                  max={120}
+                  step={5}
+                  required
+                />
+                <span className="field__hint">Minutes per appointment.</span>
+              </label>
+            </div>
+
+            <label className="field">
+              <span>
+                Biography <span className="field__optional">optional</span>
+              </span>
+              <textarea
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                rows={4}
+                placeholder="A short introduction for patients"
+              />
+            </label>
+
+            <label className="field">
+              <span>
+                Profile picture URL <span className="field__optional">optional</span>
+              </span>
+              <input
+                value={profilePictureUrl}
+                onChange={(event) => setProfilePictureUrl(event.target.value)}
+                placeholder="https://…"
+                inputMode="url"
+              />
+            </label>
+
+            {!durationValid ? (
+              <p className="form-hint form-hint--error">
+                Visit length must be between 10 and 120 minutes.
+              </p>
+            ) : null}
+
+            {saveProfile.isError ? (
+              <p className="form-error" role="alert">
+                {describeError(saveProfile.error)}
+              </p>
+            ) : null}
+          </form>
+        ) : null}
+      </Modal>
     </div>
   );
 }

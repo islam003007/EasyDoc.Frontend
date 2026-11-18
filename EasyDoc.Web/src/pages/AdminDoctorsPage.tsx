@@ -1,9 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { RefreshCw, Search as SearchIcon, ShieldCheck, Stethoscope } from 'lucide-react';
+import {
+  Pencil,
+  RefreshCw,
+  Search as SearchIcon,
+  ShieldCheck,
+  Stethoscope,
+} from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { AdminDoctor } from '../api/contracts';
 import { describeError } from '../api/client';
-import { fetchAdminDoctors, queryKeys, updateDoctorVisibility } from '../api/queries';
+import {
+  fetchAdminDoctors,
+  queryKeys,
+  updateDoctorVisibility,
+} from '../api/queries';
+import { AdminDoctorEditModal } from '../components/AdminDoctorEditModal';
 import { AdminTabs } from '../components/AdminTabs';
 import { EmptyState } from '../components/EmptyState';
 import { ErrorPanel } from '../components/ErrorPanel';
@@ -16,48 +27,91 @@ import { VisibilityPill } from '../components/StatusPill';
 import { plural } from '../lib/format';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
 
-export function AdminDoctorsPage() {
-  useDocumentTitle('Doctor directory');
+function VisibilityToggle({
+  doctor,
+  onNotice,
+  onError,
+}: {
+  doctor: AdminDoctor;
+  onNotice: (message: string) => void;
+  onError: (message: string) => void;
+}) {
   const queryClient = useQueryClient();
-  const [term, setTerm] = useState('');
-  const [notice, setNotice] = useState<string | null>(null);
-
-  const doctors = useQuery({
-    queryKey: queryKeys.adminDoctors,
-    queryFn: ({ signal }) => fetchAdminDoctors(signal),
-  });
-
   const toggle = useMutation({
-    mutationFn: (doctor: AdminDoctor) =>
-      updateDoctorVisibility(doctor.id, !doctor.isVisible),
-    onMutate: async (doctor) => {
+    mutationFn: (isVisible: boolean) =>
+      updateDoctorVisibility(doctor.id, isVisible),
+    onMutate: async (isVisible) => {
       await queryClient.cancelQueries({ queryKey: queryKeys.adminDoctors });
       const previous = queryClient.getQueryData<AdminDoctor[]>(
         queryKeys.adminDoctors,
       );
       queryClient.setQueryData<AdminDoctor[]>(queryKeys.adminDoctors, (current) =>
         current?.map((entry) =>
-          entry.id === doctor.id
-            ? { ...entry, isVisible: !entry.isVisible }
-            : entry,
+          entry.id === doctor.id ? { ...entry, isVisible } : entry,
         ),
       );
       return { previous };
     },
-    onError: (_error, _doctor, context) => {
+    onError: (error, _isVisible, context) => {
       if (context?.previous) {
         queryClient.setQueryData(queryKeys.adminDoctors, context.previous);
       }
+      onError(describeError(error));
     },
-    onSuccess: (_data, doctor) => {
-      setNotice(
-        `${doctor.personName} is now ${doctor.isVisible ? 'hidden from' : 'listed in'} the patient directory.`,
+    onSuccess: (_data, isVisible) => {
+      onNotice(
+        `${doctor.personName} is now ${isVisible ? 'listed in' : 'hidden from'} the patient directory.`,
       );
     },
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.adminDoctors });
-    },
   });
+
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={doctor.isVisible}
+      aria-label={`${doctor.isVisible ? 'Hide' : 'List'} ${doctor.personName}`}
+      className={`toggle ${doctor.isVisible ? 'is-on' : ''}`.trim()}
+      onClick={() => {
+        toggle.mutate(!doctor.isVisible);
+      }}
+      disabled={toggle.isPending}
+      aria-busy={toggle.isPending}
+    >
+      <span className="toggle__track" aria-hidden="true">
+        <span className="toggle__thumb" />
+      </span>
+      <span>
+        {toggle.isPending ? 'Saving…' : doctor.isVisible ? 'Hide' : 'List'}
+      </span>
+    </button>
+  );
+}
+
+export function AdminDoctorsPage() {
+  useDocumentTitle('Doctor directory');
+  const queryClient = useQueryClient();
+  const [term, setTerm] = useState('');
+  const [notice, setNotice] = useState<string | null>(null);
+  const [toggleError, setToggleError] = useState<string | null>(null);
+  const [editDoctorId, setEditDoctorId] = useState<string | null>(null);
+
+  const doctors = useQuery({
+    queryKey: queryKeys.adminDoctors,
+    queryFn: ({ signal }) => fetchAdminDoctors(signal),
+  });
+
+  function applySavedDoctor(updated: AdminDoctor) {
+    queryClient.setQueryData<AdminDoctor[]>(queryKeys.adminDoctors, (current) =>
+      current?.map((entry) => (entry.id === updated.id ? updated : entry)),
+    );
+    queryClient.setQueryData(queryKeys.adminDoctor(updated.id), updated);
+    setEditDoctorId(null);
+    setToggleError(null);
+    setNotice(
+      `${updated.personName} saved. The row and directory counts are already up to date.`,
+    );
+  }
 
   const all = doctors.data ?? [];
   const listed = all.filter((doctor) => doctor.isVisible).length;
@@ -91,7 +145,7 @@ export function AdminDoctorsPage() {
             <em>directory.</em>
           </>
         }
-        lead="Every doctor profile, including the ones patients cannot see. Visibility changes apply right away and are always reversible."
+        lead="Every doctor profile, including the ones patients cannot see. Open a record to edit its public details, or toggle visibility directly in the table."
         actions={
           <button
             type="button"
@@ -115,9 +169,9 @@ export function AdminDoctorsPage() {
 
       {notice ? <Notice onDismiss={() => setNotice(null)}>{notice}</Notice> : null}
 
-      {toggle.isError ? (
-        <Notice tone="error" onDismiss={() => toggle.reset()}>
-          {describeError(toggle.error)}
+      {toggleError ? (
+        <Notice tone="error" onDismiss={() => setToggleError(null)}>
+          {toggleError}
         </Notice>
       ) : null}
 
@@ -220,7 +274,7 @@ export function AdminDoctorsPage() {
             <div className="table-card">
               <table className="data-table">
                 <caption className="sr-only">
-                  Doctors with visibility controls
+                  Doctors with visibility controls and editable records
                 </caption>
                 <thead>
                   <tr>
@@ -229,62 +283,64 @@ export function AdminDoctorsPage() {
                     <th scope="col">Practice</th>
                     <th scope="col">Visibility</th>
                     <th scope="col">
-                      <span className="sr-only">Action</span>
+                      <span className="sr-only">Actions</span>
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((doctor) => {
-                    const pending = toggle.isPending && toggle.variables?.id === doctor.id;
-                    return (
-                      <tr key={doctor.id}>
-                        <td data-label="Doctor">
-                          <div className="table-person">
-                            <Monogram name={doctor.personName} size="sm" />
-                            <div>
-                              <strong>{doctor.personName}</strong>
-                            </div>
-                          </div>
-                        </td>
-                        <td data-label="Contact">
+                  {filtered.map((doctor) => (
+                    <tr key={doctor.id}>
+                      <td data-label="Doctor">
+                        <div className="table-person">
+                          <Monogram name={doctor.personName} size="sm" />
                           <div>
-                            <span>{doctor.email || 'No email on file'}</span>
-                            <span className="table-muted">{doctor.phoneNumber ?? '—'}</span>
+                            <strong>{doctor.personName}</strong>
                           </div>
-                        </td>
-                        <td data-label="Practice">
-                          <div>
-                            <span>{doctor.department ?? '—'}</span>
-                            <span className="table-muted">{doctor.city ?? '—'}</span>
-                          </div>
-                        </td>
-                        <td data-label="Visibility">
-                          <VisibilityPill visible={doctor.isVisible} />
-                        </td>
-                        <td data-label="Action" className="table-actions">
+                        </div>
+                      </td>
+                      <td data-label="Contact">
+                        <div>
+                          <span>{doctor.email || 'No email on file'}</span>
+                          <span className="table-muted">{doctor.phoneNumber ?? '—'}</span>
+                        </div>
+                      </td>
+                      <td data-label="Practice">
+                        <div>
+                          <span>{doctor.department ?? '—'}</span>
+                          <span className="table-muted">{doctor.city ?? '—'}</span>
+                        </div>
+                      </td>
+                      <td data-label="Visibility">
+                        <VisibilityPill visible={doctor.isVisible} />
+                      </td>
+                      <td data-label="Actions" className="table-actions">
+                        <div className="table-actions__group">
                           <button
                             type="button"
-                            role="switch"
-                            aria-checked={doctor.isVisible}
-                            aria-label={`${doctor.isVisible ? 'Hide' : 'List'} ${doctor.personName}`}
-                            className={`toggle ${doctor.isVisible ? 'is-on' : ''}`.trim()}
+                            className="btn btn--ghost btn--sm"
                             onClick={() => {
-                              setNotice(null);
-                              toggle.reset();
-                              toggle.mutate(doctor);
+                              setToggleError(null);
+                              setEditDoctorId(doctor.id);
                             }}
-                            disabled={toggle.isPending}
-                            aria-busy={pending}
                           >
-                            <span className="toggle__track" aria-hidden="true">
-                              <span className="toggle__thumb" />
-                            </span>
-                            <span>{pending ? 'Saving…' : doctor.isVisible ? 'Hide' : 'List'}</span>
+                            <Pencil size={14} aria-hidden="true" />
+                            Edit
                           </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                          <VisibilityToggle
+                            doctor={doctor}
+                            onNotice={(message) => {
+                              setToggleError(null);
+                              setNotice(message);
+                            }}
+                            onError={(message) => {
+                              setNotice(null);
+                              setToggleError(message);
+                            }}
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -294,11 +350,20 @@ export function AdminDoctorsPage() {
             <ShieldCheck size={18} aria-hidden="true" />
             <p>
               Hidden doctors stay in this table but disappear from patient search
-              and the public directory. Existing appointments are unaffected, and
-              every visibility change can be reversed with the same switch.
+              and the public directory. Editing a record updates that row in place,
+              and every visibility change can be reversed with the same switch.
+              Nothing is deleted or archived here.
             </p>
           </div>
         </>
+      ) : null}
+
+      {editDoctorId ? (
+        <AdminDoctorEditModal
+          doctorId={editDoctorId}
+          onClose={() => setEditDoctorId(null)}
+          onSaved={applySavedDoctor}
+        />
       ) : null}
     </div>
   );

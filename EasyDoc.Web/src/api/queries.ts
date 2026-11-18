@@ -9,12 +9,15 @@ import type {
   DoctorSchedule,
   DoctorSummary,
   LookupItem,
+  PatientProfile,
   ScheduleOverride,
   Session,
   Slot,
 } from './contracts';
 import {
+  normalizeAdminDoctor,
   normalizeAdminDoctors,
+  normalizeAdminPatient,
   normalizeAdminPatients,
   normalizeAppointments,
   normalizeDemoUsers,
@@ -22,6 +25,7 @@ import {
   normalizeDoctorSummaries,
   normalizeLookups,
   normalizeOverrides,
+  normalizePatientProfile,
   normalizeSchedules,
   normalizeSession,
   normalizeSlots,
@@ -41,11 +45,16 @@ export const queryKeys = {
   slots: (id: string, date: string) => ['doctor', id, 'slots', date] as const,
   patientAppointments: ['appointments', 'patient'] as const,
   doctorAppointments: ['appointments', 'doctor'] as const,
+  patientHistory: (patientId: string) =>
+    ['appointments', 'history', patientId] as const,
+  patientMe: ['patient', 'me'] as const,
   schedules: (doctorId: string) => ['doctor', doctorId, 'schedules'] as const,
   overrides: (doctorId: string) =>
     ['doctor', doctorId, 'schedule-overrides'] as const,
   adminDoctors: ['admin', 'doctors'] as const,
+  adminDoctor: (id: string) => ['admin', 'doctors', id] as const,
   adminPatients: ['admin', 'patients'] as const,
+  adminPatient: (id: string) => ['admin', 'patients', id] as const,
 };
 
 export async function fetchSession(signal?: AbortSignal): Promise<Session | null> {
@@ -194,6 +203,54 @@ export async function fetchDoctorMe(signal?: AbortSignal): Promise<DoctorDetail>
   return normalizeDoctorDetail(payload);
 }
 
+export async function fetchPatientMe(
+  signal?: AbortSignal,
+): Promise<PatientProfile> {
+  const payload = await apiRequest<unknown>('/patients/me', { signal });
+  return normalizePatientProfile(payload);
+}
+
+export async function updatePatientMe(input: {
+  personName: string;
+  phoneNumber: string;
+}): Promise<void> {
+  await apiRequest<unknown>('/patients/me', {
+    method: 'PATCH',
+    body: {
+      personName: input.personName.trim(),
+      phoneNumber: input.phoneNumber.trim(),
+    },
+  });
+}
+
+export async function updateDoctorMe(input: {
+  personName: string;
+  phoneNumber: string;
+  clinicAddress: string;
+  defaultAppointmentTimeInMinutes: number;
+  description?: string;
+  profilePictureUrl?: string;
+}): Promise<void> {
+  const description = input.description?.trim();
+  const profilePictureUrl = input.profilePictureUrl?.trim();
+
+  await apiRequest<unknown>('/doctors/Me', {
+    method: 'PATCH',
+    body: {
+      personName: input.personName.trim(),
+      phoneNumber: input.phoneNumber.trim(),
+      clinicAddress: input.clinicAddress.trim(),
+      defaultAppointmentTimeInMinutes: input.defaultAppointmentTimeInMinutes,
+      ...(description
+        ? { description }
+        : { description: null, clearDescription: true }),
+      ...(profilePictureUrl
+        ? { profilePictureUrl }
+        : { profilePictureUrl: null, clearProfilePictureUrl: true }),
+    },
+  });
+}
+
 export async function fetchSlots(
   doctorId: string,
   date: string,
@@ -236,6 +293,35 @@ export async function fetchDoctorAppointments(
   });
   const payload = await apiRequest<unknown>(path, { signal });
   return normalizeAppointments(payload);
+}
+
+export async function fetchPatientHistory(
+  patientId: string,
+  signal?: AbortSignal,
+): Promise<Appointment[]> {
+  const path = withQuery(`/appointments/patients/${patientId}`, {
+    pageNumber: 1,
+    pageSize: 100,
+  });
+  const payload = await apiRequest<unknown>(path, { signal });
+  return normalizeAppointments(payload);
+}
+
+export async function rescheduleAppointment(input: {
+  appointmentId: string;
+  date: string;
+  startTime: string;
+}): Promise<void> {
+  await apiRequest<unknown>(
+    `/appointments/${input.appointmentId}/reschedule`,
+    {
+      method: 'PATCH',
+      body: {
+        date: input.date,
+        startTime: input.startTime,
+      },
+    },
+  );
 }
 
 export async function cancelPatientAppointment(
@@ -301,6 +387,24 @@ export async function createSchedule(input: {
   });
 }
 
+export async function updateSchedule(input: {
+  scheduleId: string;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+}): Promise<void> {
+  await apiRequest<unknown>(`/doctors/me/schedules/${input.scheduleId}`, {
+    method: 'PATCH',
+    body: {
+      // The current API binds start/end only; dayOfWeek is sent for forward
+      // compatibility with a window update that can move days.
+      dayOfWeek: input.dayOfWeek,
+      startTime: input.startTime,
+      endTime: input.endTime,
+    },
+  });
+}
+
 export async function deleteSchedule(scheduleId: string): Promise<void> {
   await apiRequest<unknown>(`/doctors/me/schedules/${scheduleId}`, {
     method: 'DELETE',
@@ -330,6 +434,29 @@ export async function createOverride(input: {
   });
 }
 
+export async function updateOverride(input: {
+  overrideId: string;
+  date: string;
+  isAvailable: boolean;
+  startTime?: string;
+  endTime?: string;
+}): Promise<void> {
+  await apiRequest<unknown>(
+    `/doctors/me/schedule-overrides/${input.overrideId}`,
+    {
+      method: 'PATCH',
+      body: {
+        // The current API binds availability and times only; date is sent for
+        // forward compatibility with a movable override.
+        date: input.date,
+        isAvailable: input.isAvailable,
+        startTime: input.startTime,
+        endTime: input.endTime,
+      },
+    },
+  );
+}
+
 export async function deleteOverride(overrideId: string): Promise<void> {
   await apiRequest<unknown>(
     `/doctors/me/schedule-overrides/${overrideId}`,
@@ -343,6 +470,51 @@ export async function fetchAdminDoctors(
   const path = withQuery('/admin/doctors', { pageNumber: 1, pageSize: 100 });
   const payload = await apiRequest<unknown>(path, { signal });
   return normalizeAdminDoctors(payload);
+}
+
+export async function fetchAdminDoctor(
+  doctorId: string,
+  signal?: AbortSignal,
+): Promise<AdminDoctor> {
+  const payload = await apiRequest<unknown>(`/admin/doctors/${doctorId}`, {
+    signal,
+  });
+  const doctor = normalizeAdminDoctor(payload);
+  if (!doctor) throw new Error('The doctor response was not usable.');
+  return doctor;
+}
+
+export async function updateAdminDoctor(input: {
+  doctorId: string;
+  personName: string;
+  phoneNumber: string;
+  cityId?: string;
+  clinicAddress: string;
+  defaultAppointmentTimeInMinutes: number;
+  description?: string;
+  profilePictureUrl?: string;
+  isVisible: boolean;
+}): Promise<void> {
+  const description = input.description?.trim();
+  const profilePictureUrl = input.profilePictureUrl?.trim();
+
+  await apiRequest<unknown>(`/admin/doctors/${input.doctorId}`, {
+    method: 'PATCH',
+    body: {
+      personName: input.personName.trim(),
+      phoneNumber: input.phoneNumber.trim(),
+      ...(input.cityId ? { cityId: input.cityId } : {}),
+      clinicAddress: input.clinicAddress.trim(),
+      defaultAppointmentTimeInMinutes: input.defaultAppointmentTimeInMinutes,
+      isVisible: input.isVisible,
+      ...(description
+        ? { description }
+        : { description: null, clearDescription: true }),
+      ...(profilePictureUrl
+        ? { profilePictureUrl }
+        : { profilePictureUrl: null, clearProfilePictureUrl: true }),
+    },
+  });
 }
 
 export async function updateDoctorVisibility(
@@ -361,4 +533,16 @@ export async function fetchAdminPatients(
   const path = withQuery('/admin/patients', { pageNumber: 1, pageSize: 100 });
   const payload = await apiRequest<unknown>(path, { signal });
   return normalizeAdminPatients(payload);
+}
+
+export async function fetchAdminPatient(
+  patientId: string,
+  signal?: AbortSignal,
+): Promise<AdminPatient> {
+  const payload = await apiRequest<unknown>(`/admin/patients/${patientId}`, {
+    signal,
+  });
+  const patient = normalizeAdminPatient(payload);
+  if (!patient) throw new Error('The patient response was not usable.');
+  return patient;
 }

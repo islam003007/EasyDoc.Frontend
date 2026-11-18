@@ -4,6 +4,9 @@ import {
   CalendarDays,
   Check,
   ClipboardCheck,
+  Eye,
+  FileText,
+  History,
   RefreshCw,
   Stethoscope,
   X,
@@ -17,6 +20,7 @@ import {
   cancelDoctorAppointment,
   completeAppointment,
   fetchDoctorAppointments,
+  fetchPatientHistory,
   queryKeys,
 } from '../api/queries';
 import { ConfirmDialog } from '../components/ConfirmDialog';
@@ -24,6 +28,7 @@ import { EmptyState } from '../components/EmptyState';
 import { ErrorPanel } from '../components/ErrorPanel';
 import { Spinner, Skeleton } from '../components/Loading';
 import { Modal } from '../components/Modal';
+import { Monogram } from '../components/Monogram';
 import { Notice } from '../components/Notice';
 import { PageHeader } from '../components/PageHeader';
 import { StatGrid } from '../components/StatGrid';
@@ -50,6 +55,37 @@ const RANK: Record<Appointment['status'], number> = {
   Canceled: 4,
 };
 
+function ExaminationRecord({ appointment }: { appointment: Appointment }) {
+  if (!appointment.examination) {
+    return (
+      <p className="visit-detail__empty">
+        {appointment.status === 'Canceled'
+          ? 'This visit was canceled. No diagnosis, prescription, or notes were recorded.'
+          : appointment.status === 'Completed'
+            ? 'This visit was completed without diagnosis, prescription, or notes on file.'
+            : 'Diagnosis, prescription, and notes appear here once the visit is completed.'}
+      </p>
+    );
+  }
+
+  return (
+    <div className="exam-grid">
+      <div className="exam-block">
+        <p className="mono-label">Diagnosis</p>
+        <p>{appointment.examination.diagnosis ?? '—'}</p>
+      </div>
+      <div className="exam-block">
+        <p className="mono-label">Prescription</p>
+        <p>{appointment.examination.prescription ?? '—'}</p>
+      </div>
+      <div className="exam-block exam-block--wide">
+        <p className="mono-label">Notes</p>
+        <p>{appointment.examination.notes ?? 'No notes were added.'}</p>
+      </div>
+    </div>
+  );
+}
+
 function BoardRow({
   appointment,
   accepting,
@@ -57,6 +93,8 @@ function BoardRow({
   onAccept,
   onDecline,
   onComplete,
+  onView,
+  onHistory,
 }: {
   appointment: Appointment;
   accepting: boolean;
@@ -64,6 +102,8 @@ function BoardRow({
   onAccept: () => void;
   onDecline: () => void;
   onComplete: () => void;
+  onView: () => void;
+  onHistory: () => void;
 }) {
   return (
     <article className={`board-row board-row--${appointment.status.toLowerCase()}`}>
@@ -81,38 +121,38 @@ function BoardRow({
           <StatusPill status={appointment.status} />
         </div>
         <h3>{appointment.patientName ?? 'Patient'}</h3>
-        {appointment.patientName ? null : (
+        {appointment.patientName ? (
+          <p className="board-row__meta">Direct appointment</p>
+        ) : (
           <p className="board-row__meta">Patient name not on this request</p>
         )}
 
         {appointment.examination ? (
-          <details className="visit-notes">
-            <summary>Saved visit notes</summary>
-            <dl>
-              {appointment.examination.diagnosis ? (
-                <div>
-                  <dt>Diagnosis</dt>
-                  <dd>{appointment.examination.diagnosis}</dd>
-                </div>
-              ) : null}
-              {appointment.examination.prescription ? (
-                <div>
-                  <dt>Prescription</dt>
-                  <dd>{appointment.examination.prescription}</dd>
-                </div>
-              ) : null}
-              {appointment.examination.notes ? (
-                <div>
-                  <dt>Notes</dt>
-                  <dd>{appointment.examination.notes}</dd>
-                </div>
-              ) : null}
-            </dl>
-          </details>
+          <p className="board-row__hint">
+            <FileText size={13} aria-hidden="true" />
+            Visit notes saved
+          </p>
         ) : null}
       </div>
 
       <div className="board-row__actions">
+        <button
+          type="button"
+          className="btn btn--ghost btn--sm"
+          onClick={onView}
+        >
+          <Eye size={14} aria-hidden="true" />
+          View visit
+        </button>
+        <button
+          type="button"
+          className="btn btn--ghost btn--sm"
+          onClick={onHistory}
+        >
+          <History size={14} aria-hidden="true" />
+          Patient history
+        </button>
+
         {appointment.status === 'Pending' ? (
           <>
             <button
@@ -164,6 +204,8 @@ export function DoctorDashboardPage() {
   const [notice, setNotice] = useState<string | null>(null);
   const [declineTarget, setDeclineTarget] = useState<Appointment | null>(null);
   const [completeTarget, setCompleteTarget] = useState<Appointment | null>(null);
+  const [detailTarget, setDetailTarget] = useState<Appointment | null>(null);
+  const [historyTarget, setHistoryTarget] = useState<Appointment | null>(null);
   const [diagnosis, setDiagnosis] = useState('');
   const [prescription, setPrescription] = useState('');
   const [notes, setNotes] = useState('');
@@ -171,6 +213,14 @@ export function DoctorDashboardPage() {
   const appointments = useQuery({
     queryKey: queryKeys.doctorAppointments,
     queryFn: ({ signal }) => fetchDoctorAppointments(signal),
+  });
+
+  const history = useQuery({
+    queryKey: queryKeys.patientHistory(historyTarget?.patientId ?? ''),
+    queryFn: ({ signal }) =>
+      fetchPatientHistory(historyTarget?.patientId ?? '', signal),
+    enabled: Boolean(historyTarget?.patientId),
+    retry: false,
   });
 
   function invalidateBoard() {
@@ -268,6 +318,7 @@ export function DoctorDashboardPage() {
 
   const actionError = accept.error ?? decline.error;
   const isEmpty = all.length === 0;
+  const historyVisitCount = history.data?.length ?? 0;
 
   function openComplete(appointment: Appointment) {
     setCompleteTarget(appointment);
@@ -300,7 +351,7 @@ export function DoctorDashboardPage() {
             <em>in order.</em>
           </>
         }
-        lead="Pending requests first, then confirmed visits and the closed record. Availability changes feed straight into patient search."
+        lead="Pending requests first, then confirmed visits and the closed record. Open any visit for its notes, or read a patient’s completed history with your practice."
         actions={
           <Link to="/doctor/schedule" className="btn btn--secondary">
             <CalendarDays size={16} aria-hidden="true" />
@@ -483,6 +534,8 @@ export function DoctorDashboardPage() {
                       setDeclineTarget(appointment);
                     }}
                     onComplete={() => openComplete(appointment)}
+                    onView={() => setDetailTarget(appointment)}
+                    onHistory={() => setHistoryTarget(appointment)}
                   />
                 );
               })}
@@ -518,6 +571,185 @@ export function DoctorDashboardPage() {
           }
         }}
       />
+
+      <Modal
+        open={Boolean(detailTarget)}
+        title="Visit record."
+        eyebrow="Appointment detail"
+        onClose={() => setDetailTarget(null)}
+        wide
+        footer={
+          <>
+            {detailTarget && detailTarget.status === 'Scheduled' ? (
+              <button
+                type="button"
+                className="btn btn--secondary"
+                onClick={() => {
+                  const target = detailTarget;
+                  setDetailTarget(null);
+                  openComplete(target);
+                }}
+              >
+                <ClipboardCheck size={15} aria-hidden="true" />
+                Complete visit
+              </button>
+            ) : null}
+            <button
+              type="button"
+              className="btn btn--primary"
+              onClick={() => setDetailTarget(null)}
+            >
+              Close
+            </button>
+          </>
+        }
+      >
+        {detailTarget ? (
+          <div className="visit-detail">
+            <div className="visit-detail__identity">
+              <Monogram
+                name={detailTarget.patientName ?? 'Patient'}
+                size="md"
+              />
+              <div>
+                <p className="mono-label">
+                  {formatDateLong(detailTarget.date)} ·{' '}
+                  {formatTimeRange(detailTarget.startTime, detailTarget.endTime)}
+                </p>
+                <h3>{detailTarget.patientName ?? 'Patient'}</h3>
+                <p>Direct appointment</p>
+              </div>
+              <StatusPill status={detailTarget.status} />
+            </div>
+
+            <dl className="visit-detail__facts">
+              <div>
+                <dt>Date</dt>
+                <dd>{formatDateMedium(detailTarget.date)}</dd>
+              </div>
+              <div>
+                <dt>Time</dt>
+                <dd>
+                  {formatTimeRange(detailTarget.startTime, detailTarget.endTime)}
+                </dd>
+              </div>
+              <div>
+                <dt>Status</dt>
+                <dd>{detailTarget.status}</dd>
+              </div>
+              <div>
+                <dt>Patient</dt>
+                <dd>{detailTarget.patientName ?? 'Name not supplied'}</dd>
+              </div>
+            </dl>
+
+            <section className="visit-detail__record" aria-labelledby="doctor-visit-record">
+              <div className="visit-detail__record-head">
+                <div>
+                  <p className="eyebrow">Examination</p>
+                  <h3 id="doctor-visit-record">What the visit found.</h3>
+                </div>
+                <span className="mono-label">
+                  {detailTarget.status === 'Canceled'
+                    ? 'Canceled'
+                    : detailTarget.status === 'Completed'
+                      ? 'Saved'
+                      : 'Not completed yet'}
+                </span>
+              </div>
+              <ExaminationRecord appointment={detailTarget} />
+            </section>
+          </div>
+        ) : null}
+      </Modal>
+
+      <Modal
+        open={Boolean(historyTarget)}
+        title={`${historyTarget?.patientName ?? 'Patient'} · history.`}
+        eyebrow="Patient record"
+        description="Completed visits this patient has had with your practice. The API shares this history only while a scheduled visit connects you to the patient."
+        onClose={() => setHistoryTarget(null)}
+        wide
+        footer={
+          <>
+            {historyTarget && history.isSuccess && historyVisitCount > 0 ? (
+              <span className="mono-label">
+                {plural(historyVisitCount, 'completed visit')}
+              </span>
+            ) : null}
+            <button
+              type="button"
+              className="btn btn--primary"
+              onClick={() => setHistoryTarget(null)}
+            >
+              Close
+            </button>
+          </>
+        }
+      >
+        {historyTarget ? (
+          <div className="history-panel">
+            <div className="history-panel__patient">
+              <Monogram name={historyTarget.patientName ?? 'Patient'} size="sm" />
+              <div>
+                <p className="mono-label">Visit history</p>
+                <strong>{historyTarget.patientName ?? 'Patient'}</strong>
+              </div>
+            </div>
+
+            {history.isPending ? (
+              <div className="history-list" aria-busy="true" aria-label="Loading patient history">
+                {[0, 1, 2].map((index) => (
+                  <div key={index} className="history-item">
+                    <Skeleton width="35%" height="0.9rem" />
+                    <Skeleton width="75%" height="1.1rem" />
+                    <Skeleton width="55%" height="0.8rem" />
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            {history.isError ? (
+              <ErrorPanel
+                error={history.error}
+                title="The patient history could not be loaded"
+                onRetry={() => {
+                  void history.refetch();
+                }}
+                compact
+              />
+            ) : null}
+
+            {history.isSuccess && historyVisitCount === 0 ? (
+              <EmptyState
+                icon={<History />}
+                title="No completed visits yet."
+                description="Once you close a visit with this patient, its diagnosis and prescription will appear here."
+              />
+            ) : null}
+
+            {history.isSuccess && historyVisitCount > 0 ? (
+              <div className="history-list">
+                {history.data?.map((visit) => (
+                  <article key={visit.id} className="history-item">
+                    <div className="history-item__head">
+                      <div>
+                        <p className="mono-label">
+                          {formatDateLong(visit.date)} ·{' '}
+                          {formatTimeRange(visit.startTime, visit.endTime)}
+                        </p>
+                        <h3>{visit.patientName ?? historyTarget.patientName ?? 'Patient'}</h3>
+                      </div>
+                      <StatusPill status={visit.status} />
+                    </div>
+                    <ExaminationRecord appointment={visit} />
+                  </article>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </Modal>
 
       <Modal
         open={Boolean(completeTarget)}
@@ -562,6 +794,7 @@ export function DoctorDashboardPage() {
           <form id="complete-visit-form" className="form-stack" onSubmit={submitComplete}>
             <p className="modal-context">
               <span className="mono-label">Appointment</span>
+              {completeTarget.patientName ?? 'Patient'} ·{' '}
               {formatDateLong(completeTarget.date)} ·{' '}
               {formatTimeRange(completeTarget.startTime, completeTarget.endTime)}
             </p>

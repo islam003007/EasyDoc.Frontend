@@ -112,6 +112,13 @@ export function toTimePayload(value: string): string {
   return trimmed;
 }
 
+/** Clock value in the API's HH:mm shape, with or without a trailing seconds part. */
+export function toClockPayload(value: string): string {
+  const match = value.trim().match(/^(\d{1,2}):(\d{2})/);
+  if (match) return `${match[1].padStart(2, '0')}:${match[2]}`;
+  return value.trim();
+}
+
 export function timeSortKey(time: string): number {
   const [hours, minutes] = time.split(':').map(Number);
   return (hours || 0) * 60 + (minutes || 0);

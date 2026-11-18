@@ -1,7 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import { RefreshCw, Search as SearchIcon, ShieldCheck, UserRound } from 'lucide-react';
+import {
+  Eye,
+  RefreshCw,
+  Search as SearchIcon,
+  ShieldCheck,
+  UserRound,
+} from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { fetchAdminPatients, queryKeys } from '../api/queries';
+import { AdminPatientDetailModal } from '../components/AdminPatientDetailModal';
 import { AdminTabs } from '../components/AdminTabs';
 import { EmptyState } from '../components/EmptyState';
 import { ErrorPanel } from '../components/ErrorPanel';
@@ -15,6 +22,7 @@ import { useDocumentTitle } from '../lib/useDocumentTitle';
 export function AdminPatientsPage() {
   useDocumentTitle('Patient directory');
   const [term, setTerm] = useState('');
+  const [detailPatientId, setDetailPatientId] = useState<string | null>(null);
 
   const patients = useQuery({
     queryKey: queryKeys.adminPatients,
@@ -174,6 +182,9 @@ export function AdminPatientsPage() {
                     <th scope="col">Contact</th>
                     <th scope="col">Phone</th>
                     <th scope="col">Status</th>
+                    <th scope="col">
+                      <span className="sr-only">Actions</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -201,6 +212,16 @@ export function AdminPatientsPage() {
                           {patient.isDeleted ? 'Archived' : 'Active'}
                         </span>
                       </td>
+                      <td data-label="Actions" className="table-actions">
+                        <button
+                          type="button"
+                          className="btn btn--ghost btn--sm"
+                          onClick={() => setDetailPatientId(patient.id)}
+                        >
+                          <Eye size={14} aria-hidden="true" />
+                          View
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -211,12 +232,20 @@ export function AdminPatientsPage() {
           <div className="admin-note">
             <ShieldCheck size={18} aria-hidden="true" />
             <p>
-              This sandbox reads the patient directory only. Patient
-              self-registration can create new accounts, but medical history,
-              profile uploads, and destructive admin actions stay outside the demo.
+              This sandbox reads the patient directory only. Open a row for its
+              full account record; patient self-registration can create new
+              accounts, but medical history and destructive admin actions stay
+              outside the demo.
             </p>
           </div>
         </>
+      ) : null}
+
+      {detailPatientId ? (
+        <AdminPatientDetailModal
+          patientId={detailPatientId}
+          onClose={() => setDetailPatientId(null)}
+        />
       ) : null}
     </div>
   );

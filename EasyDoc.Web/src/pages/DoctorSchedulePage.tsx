@@ -7,6 +7,7 @@ import {
   CalendarPlus,
   CalendarX2,
   Clock3,
+  Pencil,
   Plus,
   Trash2,
 } from 'lucide-react';
@@ -23,12 +24,15 @@ import {
   fetchOverrides,
   fetchSchedules,
   queryKeys,
+  updateOverride,
+  updateSchedule,
 } from '../api/queries';
 import { useSession } from '../auth/SessionProvider';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { EmptyState } from '../components/EmptyState';
 import { ErrorPanel } from '../components/ErrorPanel';
 import { Spinner, Skeleton } from '../components/Loading';
+import { Modal } from '../components/Modal';
 import { Monogram } from '../components/Monogram';
 import { Notice } from '../components/Notice';
 import { PageHeader } from '../components/PageHeader';
@@ -60,6 +64,17 @@ export function DoctorSchedulePage() {
 
   const [notice, setNotice] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null);
+  const [scheduleEditTarget, setScheduleEditTarget] =
+    useState<DoctorSchedule | null>(null);
+  const [scheduleEditDay, setScheduleEditDay] = useState(1);
+  const [scheduleEditStart, setScheduleEditStart] = useState('09:00');
+  const [scheduleEditEnd, setScheduleEditEnd] = useState('14:00');
+  const [overrideEditTarget, setOverrideEditTarget] =
+    useState<ScheduleOverride | null>(null);
+  const [overrideEditDate, setOverrideEditDate] = useState('');
+  const [overrideEditAvailable, setOverrideEditAvailable] = useState(false);
+  const [overrideEditStart, setOverrideEditStart] = useState('09:00');
+  const [overrideEditEnd, setOverrideEditEnd] = useState('12:00');
 
   const [scheduleDay, setScheduleDay] = useState(1);
   const [scheduleStart, setScheduleStart] = useState('09:00');
@@ -148,6 +163,44 @@ export function DoctorSchedulePage() {
     },
   });
 
+  const saveSchedule = useMutation({
+    mutationFn: (input: {
+      scheduleId: string;
+      dayOfWeek: number;
+      startTime: string;
+      endTime: string;
+    }) => updateSchedule(input),
+    onSuccess: (_data, input) => {
+      setScheduleEditTarget(null);
+      setNotice(`Updated ${dayName(input.dayOfWeek)} consulting hours.`);
+      invalidateScheduleData('schedule');
+    },
+  });
+
+  const saveOverride = useMutation({
+    mutationFn: (input: {
+      overrideId: string;
+      date: string;
+      isAvailable: boolean;
+      startTime?: string;
+      endTime?: string;
+    }) =>
+      updateOverride({
+        ...input,
+        startTime: input.isAvailable ? input.startTime : undefined,
+        endTime: input.isAvailable ? input.endTime : undefined,
+      }),
+    onSuccess: (_data, input) => {
+      setOverrideEditTarget(null);
+      setNotice(
+        input.isAvailable
+          ? `Updated the extra hours for ${formatDateLong(input.date)}.`
+          : `${formatDateLong(input.date)} remains closed.`,
+      );
+      invalidateScheduleData('override');
+    },
+  });
+
   const weeklySchedules = schedules.data ?? [];
   const overrideList = overrides.data ?? [];
 
@@ -182,6 +235,11 @@ export function DoctorSchedulePage() {
     timeSortKey(scheduleEnd) > timeSortKey(scheduleStart);
   const overrideOrder =
     !overrideAvailable || timeSortKey(overrideEnd) > timeSortKey(overrideStart);
+  const scheduleEditOrder =
+    timeSortKey(scheduleEditEnd) > timeSortKey(scheduleEditStart);
+  const overrideEditOrder =
+    !overrideEditAvailable ||
+    timeSortKey(overrideEditEnd) > timeSortKey(overrideEditStart);
 
   function submitSchedule(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -200,6 +258,50 @@ export function DoctorSchedulePage() {
     document
       .getElementById('add-hours-form')
       ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function openScheduleEdit(schedule: DoctorSchedule) {
+    setScheduleEditTarget(schedule);
+    setScheduleEditDay(schedule.dayOfWeek);
+    setScheduleEditStart(schedule.startTime.slice(0, 5));
+    setScheduleEditEnd(schedule.endTime.slice(0, 5));
+    saveSchedule.reset();
+  }
+
+  function submitScheduleEdit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!scheduleEditTarget || !scheduleEditOrder) return;
+    saveSchedule.mutate({
+      scheduleId: scheduleEditTarget.id,
+      dayOfWeek: scheduleEditDay,
+      startTime: toTimePayload(scheduleEditStart),
+      endTime: toTimePayload(scheduleEditEnd),
+    });
+  }
+
+  function openOverrideEdit(override: ScheduleOverride) {
+    setOverrideEditTarget(override);
+    setOverrideEditDate(override.date);
+    setOverrideEditAvailable(override.isAvailable);
+    setOverrideEditStart(override.startTime?.slice(0, 5) ?? '09:00');
+    setOverrideEditEnd(override.endTime?.slice(0, 5) ?? '12:00');
+    saveOverride.reset();
+  }
+
+  function submitOverrideEdit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!overrideEditTarget || !overrideEditDate || !overrideEditOrder) return;
+    saveOverride.mutate({
+      overrideId: overrideEditTarget.id,
+      date: overrideEditDate,
+      isAvailable: overrideEditAvailable,
+      startTime: overrideEditAvailable
+        ? toTimePayload(overrideEditStart)
+        : undefined,
+      endTime: overrideEditAvailable
+        ? toTimePayload(overrideEditEnd)
+        : undefined,
+    });
   }
 
   return (
@@ -343,6 +445,15 @@ export function DoctorSchedulePage() {
                           <span key={schedule.id} className="schedule-window">
                             <Clock3 size={13} aria-hidden="true" />
                             {formatTimeRange(schedule.startTime, schedule.endTime)}
+                            <button
+                              type="button"
+                              className="schedule-window__edit"
+                              aria-label={`Edit ${dayName(day)} hours`}
+                              title="Edit this window"
+                              onClick={() => openScheduleEdit(schedule)}
+                            >
+                              <Pencil size={12} aria-hidden="true" />
+                            </button>
                             <button
                               type="button"
                               className="schedule-window__delete"
@@ -493,15 +604,26 @@ export function DoctorSchedulePage() {
                     <span className="status-pill__dot" aria-hidden="true" />
                     {override.isAvailable ? 'Open' : 'Closed'}
                   </span>
-                  <button
-                    type="button"
-                    className="icon-button"
-                    onClick={() => setDeleteTarget({ kind: 'override', override })}
-                    aria-label={`Delete override for ${override.date}`}
-                    title="Delete override"
-                  >
-                    <Trash2 size={15} aria-hidden="true" />
-                  </button>
+                  <div className="override-card__actions">
+                    <button
+                      type="button"
+                      className="icon-button icon-button--soft"
+                      onClick={() => openOverrideEdit(override)}
+                      aria-label={`Edit override for ${override.date}`}
+                      title="Edit override"
+                    >
+                      <Pencil size={15} aria-hidden="true" />
+                    </button>
+                    <button
+                      type="button"
+                      className="icon-button"
+                      onClick={() => setDeleteTarget({ kind: 'override', override })}
+                      aria-label={`Delete override for ${override.date}`}
+                      title="Delete override"
+                    >
+                      <Trash2 size={15} aria-hidden="true" />
+                    </button>
+                  </div>
                 </article>
               ))}
             </div>
@@ -638,6 +760,260 @@ export function DoctorSchedulePage() {
           }
         }}
       />
+
+      <Modal
+        open={Boolean(scheduleEditTarget)}
+        title="Edit consulting hours."
+        eyebrow="Weekly window"
+        description="Update this existing window. The week’s other consulting hours stay exactly as they are."
+        onClose={() => {
+          if (!saveSchedule.isPending) {
+            setScheduleEditTarget(null);
+            saveSchedule.reset();
+          }
+        }}
+        footer={
+          <>
+            <button
+              type="button"
+              className="btn btn--ghost"
+              onClick={() => {
+                setScheduleEditTarget(null);
+                saveSchedule.reset();
+              }}
+              disabled={saveSchedule.isPending}
+            >
+              Keep current hours
+            </button>
+            <button
+              type="submit"
+              form="edit-schedule-form"
+              className="btn btn--primary"
+              disabled={saveSchedule.isPending || !scheduleEditOrder}
+            >
+              {saveSchedule.isPending ? <Spinner /> : <Pencil size={16} aria-hidden="true" />}
+              {saveSchedule.isPending ? 'Saving hours…' : 'Save hours'}
+            </button>
+          </>
+        }
+      >
+        {scheduleEditTarget ? (
+          <form
+            id="edit-schedule-form"
+            className="form-stack"
+            onSubmit={submitScheduleEdit}
+          >
+            <p className="modal-context">
+              <span className="mono-label">Current window</span>
+              {dayName(scheduleEditTarget.dayOfWeek)} ·{' '}
+              {formatTimeRange(
+                scheduleEditTarget.startTime,
+                scheduleEditTarget.endTime,
+              )}
+            </p>
+
+            <label className="field">
+              <span>Day</span>
+              <select
+                value={scheduleEditDay}
+                onChange={(event) =>
+                  setScheduleEditDay(Number(event.target.value))
+                }
+                data-autofocus
+              >
+                {WEEK.map((day) => (
+                  <option key={day} value={day}>
+                    {dayName(day)}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <div className="field-row">
+              <label className="field">
+                <span>From</span>
+                <input
+                  type="time"
+                  value={scheduleEditStart}
+                  onChange={(event) => setScheduleEditStart(event.target.value)}
+                  required
+                />
+              </label>
+              <label className="field">
+                <span>To</span>
+                <input
+                  type="time"
+                  value={scheduleEditEnd}
+                  onChange={(event) => setScheduleEditEnd(event.target.value)}
+                  required
+                />
+              </label>
+            </div>
+
+            {!scheduleEditOrder ? (
+              <p className="form-hint form-hint--error">
+                The end time must be after the start time.
+              </p>
+            ) : (
+              <p className="form-hint">
+                Patients see the new hours as soon as this saves.
+              </p>
+            )}
+
+            {saveSchedule.isError ? (
+              <p className="form-error" role="alert">
+                {describeError(saveSchedule.error)}
+              </p>
+            ) : null}
+          </form>
+        ) : null}
+      </Modal>
+
+      <Modal
+        open={Boolean(overrideEditTarget)}
+        title="Edit date override."
+        eyebrow="Exception"
+        description="Change how this one date behaves without touching the regular weekly hours."
+        onClose={() => {
+          if (!saveOverride.isPending) {
+            setOverrideEditTarget(null);
+            saveOverride.reset();
+          }
+        }}
+        footer={
+          <>
+            <button
+              type="button"
+              className="btn btn--ghost"
+              onClick={() => {
+                setOverrideEditTarget(null);
+                saveOverride.reset();
+              }}
+              disabled={saveOverride.isPending}
+            >
+              Keep current override
+            </button>
+            <button
+              type="submit"
+              form="edit-override-form"
+              className="btn btn--primary"
+              disabled={
+                saveOverride.isPending ||
+                !overrideEditOrder ||
+                !overrideEditDate
+              }
+            >
+              {saveOverride.isPending ? <Spinner /> : <Pencil size={16} aria-hidden="true" />}
+              {saveOverride.isPending ? 'Saving override…' : 'Save override'}
+            </button>
+          </>
+        }
+      >
+        {overrideEditTarget ? (
+          <form
+            id="edit-override-form"
+            className="form-stack"
+            onSubmit={submitOverrideEdit}
+          >
+            <p className="modal-context">
+              <span className="mono-label">Current override</span>
+              {formatDateLong(overrideEditTarget.date)} ·{' '}
+              {overrideEditTarget.isAvailable
+                ? `Extra hours · ${formatTimeRange(
+                    overrideEditTarget.startTime ?? '',
+                    overrideEditTarget.endTime ?? '',
+                  )}`
+                : 'Closed all day'}
+            </p>
+
+            <label className="field">
+              <span>Date</span>
+              <input
+                type="date"
+                value={overrideEditDate}
+                onChange={(event) => setOverrideEditDate(event.target.value)}
+                required
+                data-autofocus
+              />
+            </label>
+
+            <fieldset className="field field--fieldset">
+              <legend>What happens that day?</legend>
+              <div className="radio-row">
+                <label
+                  className={`radio-card ${!overrideEditAvailable ? 'is-selected' : ''}`.trim()}
+                >
+                  <input
+                    type="radio"
+                    name="edit-override-availability"
+                    checked={!overrideEditAvailable}
+                    onChange={() => setOverrideEditAvailable(false)}
+                  />
+                  <CalendarX2 size={16} aria-hidden="true" />
+                  <span>
+                    <strong>Close the day</strong>
+                    <small>No slots, all day</small>
+                  </span>
+                </label>
+                <label
+                  className={`radio-card ${overrideEditAvailable ? 'is-selected' : ''}`.trim()}
+                >
+                  <input
+                    type="radio"
+                    name="edit-override-availability"
+                    checked={overrideEditAvailable}
+                    onChange={() => setOverrideEditAvailable(true)}
+                  />
+                  <CalendarDays size={16} aria-hidden="true" />
+                  <span>
+                    <strong>Change hours</strong>
+                    <small>Open a custom window</small>
+                  </span>
+                </label>
+              </div>
+            </fieldset>
+
+            {overrideEditAvailable ? (
+              <div className="field-row">
+                <label className="field">
+                  <span>From</span>
+                  <input
+                    type="time"
+                    value={overrideEditStart}
+                    onChange={(event) => setOverrideEditStart(event.target.value)}
+                    required
+                  />
+                </label>
+                <label className="field">
+                  <span>To</span>
+                  <input
+                    type="time"
+                    value={overrideEditEnd}
+                    onChange={(event) => setOverrideEditEnd(event.target.value)}
+                    required
+                  />
+                </label>
+              </div>
+            ) : null}
+
+            {!overrideEditOrder ? (
+              <p className="form-hint form-hint--error">
+                The end time must be after the start time.
+              </p>
+            ) : (
+              <p className="form-hint">
+                This override replaces the weekly schedule for this date only.
+              </p>
+            )}
+
+            {saveOverride.isError ? (
+              <p className="form-error" role="alert">
+                {describeError(saveOverride.error)}
+              </p>
+            ) : null}
+          </form>
+        ) : null}
+      </Modal>
     </div>
   );
 }

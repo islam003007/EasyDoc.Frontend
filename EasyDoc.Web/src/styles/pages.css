@@ -2576,3 +2576,364 @@
     border-radius: var(--radius-lg);
   }
 }
+
+/* ——— Visit details, rescheduling & patient history ——— */
+
+.visit-card__hint,
+.board-row__hint {
+  display: flex;
+  align-items: center;
+  gap: 0.32rem;
+  margin-top: 0.45rem;
+  font-size: var(--text-meta);
+  line-height: 1.45;
+  color: var(--ink-muted);
+}
+
+.visit-card__hint svg,
+.board-row__hint svg {
+  flex: none;
+  color: var(--sky-deep);
+}
+
+.visit-detail {
+  display: grid;
+  gap: 1rem;
+}
+
+.visit-detail__identity {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.85rem;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background-image: linear-gradient(120deg, #fff 45%, #fdf1f7 100%);
+}
+
+.visit-detail__identity h3 {
+  margin: 0.12rem 0 0.16rem;
+  font-size: 1.28rem;
+}
+
+.visit-detail__identity p:not(.mono-label):not(.eyebrow) {
+  font-size: var(--text-meta);
+  line-height: 1.5;
+  color: var(--ink-muted);
+  overflow-wrap: anywhere;
+}
+
+.visit-detail__facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.visit-detail__facts > div {
+  min-width: 0;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  background: var(--ice-soft);
+}
+
+.visit-detail__facts dt {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.visit-detail__facts dt svg {
+  color: var(--pink-deep);
+}
+
+.visit-detail__facts dd {
+  margin-top: 0.2rem;
+  font-size: var(--text-body);
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.visit-detail__record {
+  padding-top: 0.95rem;
+  border-top: 1px solid var(--line-soft);
+}
+
+.visit-detail__record-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.7rem;
+}
+
+.visit-detail__record-head h3 {
+  margin-top: 0.1rem;
+  font-size: 1.15rem;
+}
+
+.visit-detail__empty {
+  padding: 0.85rem;
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--ice-soft);
+  font-size: var(--text-body);
+  line-height: 1.6;
+  color: var(--ink-muted);
+}
+
+.exam-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.exam-block {
+  min-width: 0;
+  padding: 0.75rem 0.8rem;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  background: #fff;
+}
+
+.exam-block--wide {
+  grid-column: 1 / -1;
+}
+
+.exam-block > p:last-child {
+  margin-top: 0.25rem;
+  font-size: var(--text-copy);
+  line-height: 1.65;
+  color: var(--ink-soft);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.reschedule-form {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.reschedule-summary {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: linear-gradient(120deg, var(--ice-soft) 0%, #fdf5f9 100%);
+}
+
+.reschedule-summary strong {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: var(--text-copy);
+  line-height: 1.5;
+}
+
+.reschedule-summary p:not(.mono-label) {
+  margin-top: 0.15rem;
+  font-size: var(--text-meta);
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
+.history-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.history-panel__patient {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.history-panel__patient strong {
+  display: block;
+  font-size: var(--text-copy);
+}
+
+.history-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.history-item {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--sky-soft);
+  border-radius: var(--radius-md);
+  background: #fff;
+}
+
+.history-item__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.history-item__head h3 {
+  margin-top: 0.1rem;
+  font-size: 1.05rem;
+}
+
+.history-item .exam-block {
+  background: var(--ice-soft);
+}
+
+.schedule-window__edit {
+  display: inline-grid;
+  place-items: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-left: 0.05rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--sky-ink);
+  opacity: 0.65;
+}
+
+.schedule-window__edit:hover {
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--indigo);
+  opacity: 1;
+}
+
+.override-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.table-actions__group {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.edit-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 0.35rem;
+}
+
+.edit-identity > div {
+  display: grid;
+  gap: 0.05rem;
+  min-width: 0;
+}
+
+.edit-identity strong {
+  font-size: var(--text-copy);
+}
+
+.edit-identity span,
+.modal-context__meta {
+  font-size: var(--text-meta);
+  line-height: 1.5;
+  color: var(--ink-muted);
+  overflow-wrap: anywhere;
+}
+
+.patient-record {
+  display: grid;
+  gap: 1rem;
+}
+
+.patient-record__identity {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background-image: linear-gradient(120deg, #fff 50%, #fdf1f7 100%);
+}
+
+.patient-record__identity h3 {
+  margin: 0.1rem 0 0.3rem;
+  font-size: 1.3rem;
+}
+
+.account-phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.account-phone svg {
+  color: var(--sky-deep);
+}
+
+@media (max-width: 760px) {
+  .visit-detail__identity {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .visit-detail__identity > .status-pill {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .visit-detail__facts,
+  .exam-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .reschedule-summary {
+    flex-direction: column;
+  }
+
+  .history-item__head {
+    flex-direction: column;
+  }
+
+  .table-actions__group {
+    flex: 1;
+  }
+}
+
+@media (max-width: 540px) {
+  .visit-detail__identity,
+  .patient-record__identity {
+    padding: 0.75rem;
+  }
+
+  .visit-detail__identity h3 {
+    font-size: 1.1rem;
+  }
+
+  .visit-detail__record-head {
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+}
+
+.link-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}

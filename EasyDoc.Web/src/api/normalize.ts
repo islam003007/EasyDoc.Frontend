@@ -9,6 +9,7 @@ import type {
   DoctorSummary,
   Examination,
   LookupItem,
+  PatientProfile,
   Role,
   ScheduleOverride,
   Session,
@@ -455,6 +456,15 @@ export function normalizeAdminDoctor(entry: unknown): AdminDoctor | null {
     departmentId: text(read(entry, 'departmentId')),
     city: nameOf(read(entry, 'city', 'cityName')),
     cityId: text(read(entry, 'cityId')),
+    clinicAddress: text(read(entry, 'clinicAddress', 'address')),
+    description: text(read(entry, 'description', 'bio')),
+    profilePictureUrl: text(
+      read(entry, 'profilePictureUrl', 'profilePictureURL', 'profilePicture'),
+    ),
+    defaultAppointmentTimeInMinutes: numberValue(
+      read(entry, 'defaultAppointmentTimeInMinutes', 'appointmentDuration'),
+      30,
+    ),
     isVisible: bool(read(entry, 'isVisible', 'visible', 'active'), true),
     isDeleted: bool(read(entry, 'isDeleted'), false),
   };
@@ -486,4 +496,21 @@ export function normalizeAdminPatients(payload: unknown): AdminPatient[] {
   return recordsIn(payload, ['patients', 'items'])
     .map(normalizeAdminPatient)
     .filter((entry): entry is AdminPatient => entry !== null);
+}
+
+export function normalizePatientProfile(payload: unknown): PatientProfile {
+  if (!isRecord(payload)) {
+    throw new Error('The patient response was not a JSON object.');
+  }
+
+  const id = text(read(payload, 'id', 'patientId'));
+  if (!id) throw new Error('The patient response did not include an id.');
+
+  return {
+    id,
+    personName:
+      text(read(payload, 'personName', 'name', 'displayName')) ?? 'Patient',
+    phoneNumber: text(read(payload, 'phoneNumber', 'phone')),
+    email: text(read(payload, 'email')) ?? '',
+  };
 }

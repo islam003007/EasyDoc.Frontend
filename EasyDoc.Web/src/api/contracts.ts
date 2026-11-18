@@ -101,8 +101,19 @@ export interface AdminDoctor {
   departmentId?: string;
   city?: string;
   cityId?: string;
+  clinicAddress?: string;
+  description?: string;
+  profilePictureUrl?: string;
+  defaultAppointmentTimeInMinutes: number;
   isVisible: boolean;
   isDeleted: boolean;
+}
+
+export interface PatientProfile {
+  id: string;
+  personName: string;
+  phoneNumber?: string;
+  email: string;
 }
 
 export interface AdminPatient {
