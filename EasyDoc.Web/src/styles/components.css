@@ -1403,6 +1403,11 @@
   display: block;
 }
 
+.field > .password-control {
+  font-weight: 400;
+  color: var(--ink);
+}
+
 .password-control input {
   padding-right: 2.9rem;
 }

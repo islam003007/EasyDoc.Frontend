@@ -107,8 +107,8 @@ function problemMessage(
       validationSummary ??
       title ??
       (status === 0
-        ? 'The API could not be reached.'
-        : `The request failed with status ${status}.`),
+        ? 'The clinic service could not be reached.'
+        : 'The request could not be completed. Please try again.'),
     title,
     detail,
   };
@@ -163,7 +163,7 @@ export async function apiRequest<T>(
     if (error instanceof DOMException && error.name === 'AbortError') throw error;
     throw new ApiError(
       0,
-      'The EasyDoc API could not be reached. Check that it is running on the proxy target.',
+      'The clinic service could not be reached. Check the connection and try again.',
     );
   }
 
@@ -200,7 +200,7 @@ export function withQuery(
 
 export function describeError(error: unknown): string {
   if (isApiError(error)) {
-    if (error.status === 401) return 'Your session has ended. Sign in again.';
+    if (error.status === 401) return 'Your sign-in has ended. Sign in again.';
     if (error.status === 403) return 'This action is not allowed for your role.';
     if (error.status === 404) return 'That record could not be found.';
     return error.detail ?? error.message;
