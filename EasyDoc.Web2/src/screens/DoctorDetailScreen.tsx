@@ -1,0 +1,353 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  ArrowLeft,
+  ArrowRight,
+  CalendarCheck2,
+  Clock3,
+  Mail,
+  MapPin,
+  Phone,
+  Stethoscope,
+} from 'lucide-react';
+import { useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import type { Slot } from '../api/contracts';
+import {
+  createAppointment,
+  fetchDoctor,
+  fetchSlots,
+  queryKeys,
+} from '../api/queries';
+import { useSession } from '../auth/SessionProvider';
+import {
+  formatDateLong,
+  formatDateMedium,
+  formatTimeRange,
+  todayIso,
+  toTimePayload,
+} from '../lib/dates';
+import { useDocumentTitle } from '../lib/useDocumentTitle';
+import { DateRail } from '../ui/DateRail';
+import { ErrorPanel, InlineError } from '../ui/ErrorPanel';
+import { Skeleton, Spinner } from '../ui/Loading';
+import { Monogram } from '../ui/Monogram';
+import { SlotPicker } from '../ui/SlotPicker';
+import { Stamp } from '../ui/Stamp';
+
+interface BookingSuccess {
+  date: string;
+  slot: Slot;
+}
+
+export function DoctorDetailScreen() {
+  const { doctorId = '' } = useParams();
+  const { session } = useSession();
+  const queryClient = useQueryClient();
+
+  const [selectedDate, setSelectedDate] = useState(todayIso());
+  const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
+  const [success, setSuccess] = useState<BookingSuccess | null>(null);
+
+  const doctorQuery = useQuery({
+    queryKey: queryKeys.doctor(doctorId),
+    queryFn: ({ signal }) => fetchDoctor(doctorId, signal),
+    enabled: Boolean(doctorId),
+  });
+
+  const slotsQuery = useQuery({
+    queryKey: queryKeys.slots(doctorId, selectedDate),
+    queryFn: ({ signal }) => fetchSlots(doctorId, selectedDate, signal),
+    enabled: Boolean(doctorId),
+  });
+
+  const booking = useMutation({
+    mutationFn: (input: { date: string; slot: Slot }) =>
+      createAppointment({
+        doctorId,
+        date: input.date,
+        startTime: toTimePayload(input.slot.startTime),
+      }),
+    onSuccess: (_appointmentId, input) => {
+      setSuccess({ date: input.date, slot: input.slot });
+      setSelectedSlot(null);
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.slots(doctorId, input.date),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.patientAppointments,
+      });
+    },
+  });
+
+  const doctor = doctorQuery.data;
+
+  useDocumentTitle(doctor ? doctor.personName : 'Doctor profile');
+
+  function chooseDate(date: string) {
+    setSelectedDate(date);
+    setSelectedSlot(null);
+    setSuccess(null);
+    booking.reset();
+  }
+
+  return (
+    <div className="page">
+      <Link to="/patient" className="back-link">
+        <ArrowLeft size={15} aria-hidden="true" />
+        Back to the directory
+      </Link>
+
+      {doctorQuery.isPending ? (
+        <div className="stack" aria-busy="true" aria-label="Loading doctor">
+          <div className="doctor-head">
+            <Skeleton width="86px" height="86px" />
+            <div className="stack--tight" style={{ flex: 1 }}>
+              <Skeleton width="8rem" height="0.75rem" />
+              <Skeleton width="min(24rem, 70%)" height="2.4rem" />
+              <Skeleton width="min(34rem, 90%)" height="0.9rem" />
+            </div>
+          </div>
+          <div className="split">
+            <Skeleton height="18rem" />
+            <Skeleton height="26rem" />
+          </div>
+        </div>
+      ) : null}
+
+      {doctorQuery.isError ? (
+        <ErrorPanel
+          error={doctorQuery.error}
+          title="This practice could not be opened"
+          onRetry={() => {
+            void doctorQuery.refetch();
+          }}
+        />
+      ) : null}
+
+      {doctor ? (
+        <>
+          <header className="doctor-head">
+            <Monogram name={doctor.personName} size="xl" />
+            <div className="doctor-head__copy">
+              <p className="doctor-head__kicker">
+                {doctor.department ?? 'Care team'}, {doctor.city ?? 'Egypt'}
+              </p>
+              <h1><bdi dir="auto">{doctor.personName}</bdi></h1>
+              <p className="doctor-head__lead">
+                {doctor.description ??
+                  'A member of the EasyDoc care network. Choose a date to see the open times held for this practice.'}
+              </p>
+              <div className="doctor-facts">
+                <span>
+                  <MapPin size={14} aria-hidden="true" />
+                  {doctor.clinicAddress ?? 'Clinic address on file'}
+                </span>
+                <span>
+                  <Clock3 size={14} aria-hidden="true" />
+                  {doctor.defaultAppointmentTimeInMinutes} minute visits
+                </span>
+                <span>
+                  <Stethoscope size={14} aria-hidden="true" />
+                  {doctor.department ?? 'General care'}
+                </span>
+              </div>
+            </div>
+          </header>
+
+          <div className="split split--booking">
+            <div className="stack">
+              <section className="sheet">
+                <div className="sheet__head">
+                  <div>
+                    <p className="sheet__kicker">The practice</p>
+                    <h2>Care, with a clear calendar.</h2>
+                  </div>
+                </div>
+                <div className="sheet__body">
+                  <p className="doctor-about">
+                    {doctor.description ?? 'No biography has been added yet.'}
+                  </p>
+                  <dl className="facts-grid">
+                    <div>
+                      <dt>Specialty</dt>
+                      <dd>{doctor.department ?? '—'}</dd>
+                    </div>
+                    <div>
+                      <dt>City</dt>
+                      <dd>{doctor.city ?? '—'}</dd>
+                    </div>
+                    <div>
+                      <dt>Clinic</dt>
+                      <dd>{doctor.clinicAddress ?? '—'}</dd>
+                    </div>
+                    <div>
+                      <dt>Visit length</dt>
+                      <dd>{doctor.defaultAppointmentTimeInMinutes} minutes</dd>
+                    </div>
+                    {doctor.phoneNumber ? (
+                      <div>
+                        <dt>Clinic phone</dt>
+                        <dd>
+                          <a
+                            className="phone-link"
+                            href={`tel:${doctor.phoneNumber}`}
+                            dir="ltr"
+                          >
+                            <Phone size={13} aria-hidden="true" />
+                            {doctor.phoneNumber}
+                          </a>
+                        </dd>
+                      </div>
+                    ) : null}
+                    {doctor.email ? (
+                      <div>
+                        <dt>Email</dt>
+                        <dd>
+                          <a className="phone-link" href={`mailto:${doctor.email}`}>
+                            <Mail size={13} aria-hidden="true" />
+                            {doctor.email}
+                          </a>
+                        </dd>
+                      </div>
+                    ) : null}
+                  </dl>
+                </div>
+              </section>
+
+              <section className="sheet">
+                <div className="sheet__head">
+                  <div>
+                    <p className="sheet__kicker">Before you book</p>
+                    <h2>Three small steps.</h2>
+                  </div>
+                </div>
+                <div className="sheet__body">
+                  <ol className="steps">
+                    <li>
+                      <span className="steps__number tnum">1</span>
+                      <div>
+                        <strong>Pick a date</strong>
+                        <p>
+                          Open days come from the doctor&rsquo;s weekly schedule
+                          and date overrides.
+                        </p>
+                      </div>
+                    </li>
+                    <li>
+                      <span className="steps__number tnum">2</span>
+                      <div>
+                        <strong>Hold a time</strong>
+                        <p>
+                          Only genuinely unbooked times appear in the day&rsquo;s
+                          ledger.
+                        </p>
+                      </div>
+                    </li>
+                    <li>
+                      <span className="steps__number tnum">3</span>
+                      <div>
+                        <strong>Send the request</strong>
+                        <p>
+                          The doctor reviews every request before the visit is
+                          confirmed.
+                        </p>
+                      </div>
+                    </li>
+                  </ol>
+                </div>
+              </section>
+            </div>
+
+            <aside className="sheet booking-panel sticky-panel" aria-labelledby="booking-heading">
+              <div className="booking-panel__head">
+                <p className="sheet__kicker">Availability</p>
+                <h2 id="booking-heading">Choose a time.</h2>
+                <p>
+                  All times are clinic-local. You are booking as{' '}
+                  <strong>{session?.displayName}</strong>.
+                </p>
+              </div>
+
+              <div className="booking-panel__body">
+                <DateRail value={selectedDate} onChange={chooseDate} />
+
+                {success ? (
+                  <div className="request-slip" role="status">
+                    <Stamp tone="done">Request sent</Stamp>
+                    <h3>
+                      {formatDateLong(success.date)} ·{' '}
+                      {formatTimeRange(success.slot.startTime, success.slot.endTime)}
+                    </h3>
+                    <p>
+                      Status is <strong>pending</strong> until the doctor
+                      accepts. You can cancel from My visits.
+                    </p>
+                    <Link to="/patient/appointments" className="text-link">
+                      View my visits
+                      <ArrowRight size={14} aria-hidden="true" />
+                    </Link>
+                  </div>
+                ) : null}
+
+                <SlotPicker
+                  date={selectedDate}
+                  slots={slotsQuery.data}
+                  isPending={slotsQuery.isPending}
+                  isFetching={slotsQuery.isFetching}
+                  error={slotsQuery.isError ? slotsQuery.error : undefined}
+                  onRetry={() => {
+                    void slotsQuery.refetch();
+                  }}
+                  selected={selectedSlot}
+                  onSelect={(slot) => {
+                    setSelectedSlot(slot);
+                    booking.reset();
+                  }}
+                  disabled={booking.isPending}
+                />
+
+                {selectedSlot ? (
+                  <div className="hold-slip">
+                    <p className="hold-slip__label">Holding</p>
+                    <p className="hold-slip__time">
+                      {formatDateMedium(selectedDate)} ·{' '}
+                      {formatTimeRange(
+                        selectedSlot.startTime,
+                        selectedSlot.endTime,
+                      )}
+                    </p>
+                    <button
+                      type="button"
+                      className="btn btn--pink btn--block"
+                      style={{ marginTop: '0.65rem' }}
+                      onClick={() =>
+                        booking.mutate({ date: selectedDate, slot: selectedSlot })
+                      }
+                      disabled={booking.isPending}
+                    >
+                      {booking.isPending ? (
+                        <Spinner />
+                      ) : (
+                        <CalendarCheck2 size={16} aria-hidden="true" />
+                      )}
+                      {booking.isPending ? 'Sending request…' : 'Request this time'}
+                    </button>
+                    <p className="hold-slip__note">
+                      You can cancel while the request is pending or scheduled.
+                    </p>
+                  </div>
+                ) : null}
+
+                {booking.isError ? (
+                  <div style={{ marginTop: '0.8rem' }}>
+                    <InlineError error={booking.error} />
+                  </div>
+                ) : null}
+              </div>
+            </aside>
+          </div>
+        </>
+      ) : null}
+    </div>
+  );
+}

@@ -7,6 +7,9 @@ The visual direction is **Friendly Care**: ice-white surfaces, deep indigo, and 
 EasyDoc mark, with Plus Jakarta Sans, IBM Plex Sans Arabic, IBM Plex Mono and soft rounded cards.
 The records themselves stay precise.
 
+> A second independent client, **Open Hours**, lives in `../EasyDoc.Web2/` and shares the same API.
+> Both can run side by side; this client is unchanged.
+
 ## Stack
 
 - React 19 + TypeScript + Vite

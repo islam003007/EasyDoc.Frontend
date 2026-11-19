@@ -1,0 +1,71 @@
+:root {
+  color-scheme: light;
+
+  /* Paper and ink */
+  --sheet: #f3f5fb;
+  --sheet-deep: #e9edf8;
+  --card: #ffffff;
+  --card-soft: #fafbff;
+  --ink: #211c55;
+  --ink-strong: #17123d;
+  --ink-soft: #4a4670;
+  --ink-muted: #5f5b80;
+
+  /* Rules and edges */
+  --rule: #d9def0;
+  --rule-soft: #e9ecf7;
+  --rule-strong: #b9c1de;
+
+  /* The mark's two inks */
+  --pink: #f594bd;
+  --pink-soft: #fbdbe8;
+  --pink-wash: #fdeef5;
+  --pink-strong: #a13266;
+
+  --sky: #92d3ef;
+  --sky-soft: #def4fd;
+  --sky-wash: #effaff;
+  --sky-strong: #146585;
+
+  /* The mark's offset register */
+  --offset: #a9a7e0;
+  --offset-soft: #dcdcf3;
+
+  /* Functional status colours — never brand colour alone */
+  --green: #2b6d53;
+  --green-soft: #e6f5ee;
+  --amber: #8a5a12;
+  --amber-soft: #fdf1dd;
+  --red: #a72a48;
+  --red-soft: #fbe9ef;
+  --slate: #5d5a72;
+  --slate-soft: #efeff7;
+
+  --focus: #4a3f8f;
+
+  --font-display: 'Bricolage Grotesque Variable', 'Noto Sans Arabic Variable',
+    'Segoe UI', system-ui, sans-serif;
+  --font-body: 'Archivo Variable', 'Noto Sans Arabic Variable', 'Segoe UI',
+    system-ui, sans-serif;
+  --font-arabic: 'Noto Sans Arabic Variable', 'Segoe UI', Tahoma, sans-serif;
+
+  --text-min: 0.75rem; /* 12px */
+  --text-small: 0.8125rem; /* 13px */
+  --text-body: 0.875rem; /* 14px */
+  --text-copy: 0.9375rem; /* 15px */
+
+  --radius-xs: 3px;
+  --radius-sm: 5px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  --shadow-sheet: 0 1px 0 rgba(33, 28, 85, 0.04),
+    0 24px 60px -46px rgba(33, 28, 85, 0.4);
+  --shadow-lift: 0 2px 0 rgba(33, 28, 85, 0.05),
+    0 30px 70px -44px rgba(33, 28, 85, 0.5);
+  --shadow-stamp: 0 1px 0 rgba(33, 28, 85, 0.08);
+
+  --rail-width: 252px;
+  --content-max: 1220px;
+  --gutter: clamp(1.05rem, 3.2vw, 2.75rem);
+}
