@@ -53,6 +53,16 @@ seeded. Everything uses sample clinic data; do not enter real patient informatio
 - `v1-both-clients` — tag for the exact state at the split
 - `clinic-hours` — design exploration branch for the second client
 
+### Login spikes
+
+On the `clinic-hours` branch, two dev-only login directions are available:
+
+- `http://localhost:5175/spike/clinic-hours` — pale-sage timetable, no split panel
+- `http://localhost:5175/spike/register` — white editorial index, one vermilion accent
+
+The current Open Hours login stays at `http://localhost:5175/login`. The spike routes are guarded by
+`import.meta.env.DEV` and do not exist in a production build.
+
 ## History
 
 The Friendly Care history was extracted from the EasyDoc API repository before the frontend was
