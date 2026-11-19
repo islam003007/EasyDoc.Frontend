@@ -14,7 +14,6 @@ const BUDGET = { tsx: 300, ts: 240, css: 360 };
 
 // Temporary debt. Remove an entry when the file is split.
 const LEGACY_DEBT = {
-  'src/screens/DoctorScheduleScreen.tsx': 997,
   'src/screens/DoctorBoardScreen.tsx': 641,
   'src/screens/PatientVisitsScreen.tsx': 657,
   'src/screens/DoctorDetailScreen.tsx': 432,

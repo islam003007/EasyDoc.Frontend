@@ -19,6 +19,7 @@ split.
 - Appointment conflict, schedule availability and booking error logic moved into `src/lib/` with
   unit tests.
 - `VisitRow` and `BoardRow` extracted out of the 600+ line pages.
+- The 997-line schedule screen split into 18 modules under `features/schedule/`; live weekly-window and override CRUD verified.
 - API split away from both API apps into separate repositories.
 - `DateRail`, `SlotPicker`, `DemoRoleCard`, validation, appointment and schedule logic covered by
   49 frontend tests.
@@ -27,7 +28,6 @@ split.
 
 | File | Current | Target |
 | --- | ---: | --- |
-| `screens/DoctorScheduleScreen.tsx` | 997 | `features/schedule/` page + weekly card, add form, override list, add override form, two edit dialogs, data hook |
 | `screens/PatientVisitsScreen.tsx` | 657 | `features/visits/` page + record dialog + reschedule dialog + mutations hook |
 | `screens/DoctorBoardScreen.tsx` | 641 | `features/board/` page + detail dialog + history dialog + complete form + data hook |
 | `screens/DoctorProfileScreen.tsx` | 449 | page + public profile + profile sidebar + edit dialog |
