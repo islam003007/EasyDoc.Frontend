@@ -27,6 +27,8 @@ import { NotFoundScreen } from './screens/NotFoundScreen';
 import { PatientSearchScreen } from './screens/PatientSearchScreen';
 import { PatientVisitsScreen } from './screens/PatientVisitsScreen';
 import { RegisterScreen } from './screens/RegisterScreen';
+import { SpikeClinicHours } from './screens/spikes/SpikeClinicHours';
+import { SpikeRegister } from './screens/spikes/SpikeRegister';
 import { StandardLoginScreen } from './screens/StandardLoginScreen';
 import { AppShell } from './ui/AppShell';
 
@@ -97,6 +99,12 @@ function AppRoutes() {
       <Route path="/login" element={<LoginScreen />} />
       <Route path="/login/standard" element={<StandardLoginScreen />} />
       <Route path="/register" element={<RegisterScreen />} />
+      {import.meta.env.DEV ? (
+        <>
+          <Route path="/spike/clinic-hours" element={<SpikeClinicHours />} />
+          <Route path="/spike/register" element={<SpikeRegister />} />
+        </>
+      ) : null}
       <Route path="/" element={<RootRedirect />} />
 
       <Route
