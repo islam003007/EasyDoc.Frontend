@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import { addDays } from 'date-fns';
 import type { Appointment } from '../api/contracts';

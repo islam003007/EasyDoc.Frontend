@@ -33,11 +33,16 @@ export function DateRail({
     const rail = railRef.current;
     const selected = rail?.querySelector<HTMLElement>('.date-slip.is-selected');
     if (!rail || !selected) return;
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    rail.scrollTo({
-      left: selected.offsetLeft - rail.clientWidth / 2 + selected.clientWidth / 2,
-      behavior: reduce ? 'auto' : 'smooth',
-    });
+    const reduce =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (typeof rail.scrollTo === 'function') {
+      rail.scrollTo({
+        left:
+          selected.offsetLeft - rail.clientWidth / 2 + selected.clientWidth / 2,
+        behavior: reduce ? 'auto' : 'smooth',
+      });
+    }
   }, [value]);
 
   return (
