@@ -1,38 +1,17 @@
 import { useMutation } from '@tanstack/react-query';
-import {
-  AlertCircle,
-  ArrowRight,
-  Eye,
-  EyeOff,
-  LogIn,
-} from 'lucide-react';
+import { AlertCircle, ArrowRight, Eye, EyeOff, LogIn } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
-import { describeFormError } from '../api/client';
-import { passwordLogin } from '../api/queries';
-import { useSession } from '../auth/SessionProvider';
-import { roleHome } from '../lib/format';
-import { useDocumentTitle } from '../lib/useDocumentTitle';
-import { AuthFrame } from '../ui/AuthFrame';
-import { Field } from '../ui/Field';
-import { Spinner } from '../ui/Loading';
+import { describeFormError } from '../../../api/client';
+import { passwordLogin } from '../../../api/queries';
+import { useSession } from '../../../auth/SessionProvider';
+import { roleHome } from '../../../lib/format';
+import { useDocumentTitle } from '../../../lib/useDocumentTitle';
+import { FriendlyAuthScreen } from './FriendlyAuthScreen';
+import { FcField, FcSpinner } from './fc-ui';
+import { validateLogin, type LoginFieldErrors } from './fc-validation';
 
-interface FieldErrors {
-  email?: string;
-  password?: string;
-}
-
-function validate(email: string, password: string): FieldErrors {
-  const errors: FieldErrors = {};
-  if (!email.trim()) errors.email = 'Enter the email for your account.';
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-    errors.email = 'Enter a valid email address.';
-  }
-  if (!password) errors.password = 'Enter your password.';
-  return errors;
-}
-
-export function StandardLoginScreen() {
+export function FriendlyStandardLoginPage() {
   useDocumentTitle('Sign in');
   const { session, refreshSession } = useSession();
   const navigate = useNavigate();
@@ -40,7 +19,7 @@ export function StandardLoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<FieldErrors>({});
+  const [errors, setErrors] = useState<LoginFieldErrors>({});
 
   const login = useMutation({
     mutationFn: async () => {
@@ -48,7 +27,7 @@ export function StandardLoginScreen() {
       const next = await refreshSession();
       if (!next) {
         throw new Error(
-          'Signed in, but the account could not be confirmed. Refresh the page and try again.',
+          'Signed in, but we couldn’t confirm your account. Refresh the page and try again.',
         );
       }
       return next;
@@ -63,45 +42,45 @@ export function StandardLoginScreen() {
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     login.reset();
-    const nextErrors = validate(email, password);
+    const nextErrors = validateLogin(email, password);
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
     login.mutate();
   }
 
   return (
-    <AuthFrame
+    <FriendlyAuthScreen
       mode="Patient sign-in"
       title="Welcome back."
-      lead="Sign in with the email and password for your patient account. Doctor and demo-admin seats stay one click away on the demo desk."
+      lead="Sign in with the email and password for your patient account. Demo doctor and admin seats stay one click away."
       footer={
         <>
-          <p className="auth-card__switch">
+          <p className="auth-switch">
             New to EasyDoc?{' '}
-            <Link to="/register" className="text-link">
+            <Link to="/register" className="fc-text-link">
               Create a patient account
             </Link>
           </p>
-          <Link to="/login" className="btn btn--secondary btn--block">
-            Use a one-click demo seat
+          <Link to="/login" className="fc-btn fc-btn--secondary fc-btn--block">
+            Use a one-click demo role
             <ArrowRight size={15} aria-hidden="true" />
           </Link>
-          <p className="auth-card__fineprint">
+          <p className="auth-fineprint">
             Demo environment with sample data. Doctors and demo admins sign in
-            through the seeded seats; there is no doctor self-registration.
+            through the one-click seats; no doctor self-registration is offered.
           </p>
         </>
       }
     >
       {login.isError ? (
-        <p className="form-error" role="alert">
-          <AlertCircle size={15} aria-hidden="true" />
-          <span>{describeFormError(login.error)}</span>
-        </p>
+        <div className="auth-alert" role="alert">
+          <AlertCircle size={18} aria-hidden="true" />
+          <p>{describeFormError(login.error)}</p>
+        </div>
       ) : null}
 
       <form className="auth-form" onSubmit={submit} noValidate>
-        <Field id="signin-email" label="Email" error={errors.email}>
+        <FcField id="signin-email" label="Email" error={errors.email}>
           <input
             id="signin-email"
             type="email"
@@ -119,9 +98,9 @@ export function StandardLoginScreen() {
             aria-describedby={errors.email ? 'signin-email-error' : undefined}
             placeholder="you@example.com"
           />
-        </Field>
+        </FcField>
 
-        <Field id="signin-password" label="Password" error={errors.password}>
+        <FcField id="signin-password" label="Password" error={errors.password}>
           <span className="password-control">
             <input
               id="signin-password"
@@ -155,17 +134,17 @@ export function StandardLoginScreen() {
               )}
             </button>
           </span>
-        </Field>
+        </FcField>
 
         <button
           type="submit"
-          className="btn btn--primary btn--block auth-submit"
+          className="fc-btn fc-btn--primary fc-btn--block auth-submit"
           disabled={login.isPending}
         >
-          {login.isPending ? <Spinner /> : <LogIn size={16} aria-hidden="true" />}
+          {login.isPending ? <FcSpinner /> : <LogIn size={16} aria-hidden="true" />}
           {login.isPending ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
-    </AuthFrame>
+    </FriendlyAuthScreen>
   );
 }

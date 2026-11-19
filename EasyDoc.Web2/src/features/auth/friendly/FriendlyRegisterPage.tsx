@@ -1,84 +1,28 @@
 import { useMutation } from '@tanstack/react-query';
-import {
-  AlertCircle,
-  ArrowRight,
-  Eye,
-  EyeOff,
-  UserPlus,
-} from 'lucide-react';
+import { AlertCircle, ArrowRight, Eye, EyeOff, UserPlus } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
-import { describeFormError } from '../api/client';
-import { passwordLogin, registerPatient } from '../api/queries';
-import { useSession } from '../auth/SessionProvider';
-import { roleHome } from '../lib/format';
-import { useDocumentTitle } from '../lib/useDocumentTitle';
-import { AuthFrame } from '../ui/AuthFrame';
-import { Field } from '../ui/Field';
-import { Spinner } from '../ui/Loading';
+import { describeFormError } from '../../../api/client';
+import { passwordLogin, registerPatient } from '../../../api/queries';
+import { useSession } from '../../../auth/SessionProvider';
+import { roleHome } from '../../../lib/format';
+import { useDocumentTitle } from '../../../lib/useDocumentTitle';
+import { FriendlyAuthScreen } from './FriendlyAuthScreen';
+import { FcField, FcSpinner } from './fc-ui';
+import {
+  EMPTY_REGISTRATION,
+  validateRegistration,
+  type RegistrationErrors,
+  type RegistrationValues,
+} from './fc-validation';
 
-interface FieldValues {
-  personName: string;
-  email: string;
-  phoneNumber: string;
-  password: string;
-  passwordConfirm: string;
-}
-
-type FieldErrors = Partial<Record<keyof FieldValues, string>>;
-
-const EMPTY_VALUES: FieldValues = {
-  personName: '',
-  email: '',
-  phoneNumber: '',
-  password: '',
-  passwordConfirm: '',
-};
-
-function validate(values: FieldValues): FieldErrors {
-  const errors: FieldErrors = {};
-
-  if (!values.personName.trim()) {
-    errors.personName = 'Enter your full name.';
-  } else if (values.personName.trim().length < 2) {
-    errors.personName = 'Enter at least two characters.';
-  }
-
-  if (!values.email.trim()) {
-    errors.email = 'Enter an email address.';
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
-    errors.email = 'Enter a valid email address.';
-  }
-
-  const digits = values.phoneNumber.replace(/\D/g, '');
-  if (!values.phoneNumber.trim()) {
-    errors.phoneNumber = 'Enter a phone number.';
-  } else if (digits.length < 8 || digits.length > 15) {
-    errors.phoneNumber = 'Enter a phone number with 8 to 15 digits.';
-  }
-
-  if (!values.password) {
-    errors.password = 'Choose a password.';
-  } else if (values.password.length < 8) {
-    errors.password = 'Use at least 8 characters.';
-  }
-
-  if (!values.passwordConfirm) {
-    errors.passwordConfirm = 'Repeat your password.';
-  } else if (values.passwordConfirm !== values.password) {
-    errors.passwordConfirm = 'The passwords do not match.';
-  }
-
-  return errors;
-}
-
-export function RegisterScreen() {
+export function FriendlyRegisterPage() {
   useDocumentTitle('Create a patient account');
   const { session, refreshSession } = useSession();
   const navigate = useNavigate();
 
-  const [values, setValues] = useState<FieldValues>(EMPTY_VALUES);
-  const [errors, setErrors] = useState<FieldErrors>({});
+  const [values, setValues] = useState<RegistrationValues>(EMPTY_REGISTRATION);
+  const [errors, setErrors] = useState<RegistrationErrors>({});
   const [showPassword, setShowPassword] = useState(false);
 
   const registration = useMutation({
@@ -116,7 +60,10 @@ export function RegisterScreen() {
 
   if (session) return <Navigate to={roleHome(session.role)} replace />;
 
-  function update<K extends keyof FieldValues>(key: K, value: string) {
+  function update<K extends keyof RegistrationValues>(
+    key: K,
+    value: string,
+  ) {
     setValues((current) => ({ ...current, [key]: value }));
     if (errors[key]) {
       setErrors((current) => ({ ...current, [key]: undefined }));
@@ -126,45 +73,53 @@ export function RegisterScreen() {
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     registration.reset();
-    const nextErrors = validate(values);
+    const nextErrors = validateRegistration(values);
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
     registration.mutate();
   }
 
+  const passwordHint = errors.password
+    ? undefined
+    : '8+ characters with upper and lower case, a number, and a symbol.';
+
   return (
-    <AuthFrame
+    <FriendlyAuthScreen
       mode="New patient"
       title="Create your account."
       lead="A few details are enough to start booking. New patient accounts are confirmed automatically in this demo — please use sample details only."
       footer={
         <>
-          <p className="auth-card__switch">
+          <p className="auth-switch">
             Already registered?{' '}
-            <Link to="/login/standard" className="text-link">
+            <Link to="/login/standard" className="fc-text-link">
               Sign in
             </Link>
           </p>
-          <Link to="/login" className="btn btn--ghost btn--block">
-            Use a demo seat instead
+          <Link to="/login" className="fc-btn fc-btn--ghost fc-btn--block">
+            Use a demo role instead
             <ArrowRight size={15} aria-hidden="true" />
           </Link>
-          <p className="auth-card__fineprint">
+          <p className="auth-fineprint">
             Patient registration only. Doctor and demo-admin seats are seeded
-            accounts, and sample data may reset.
+            accounts. Sample data may be reset.
           </p>
         </>
       }
     >
       {registration.isError ? (
-        <p className="form-error" role="alert">
-          <AlertCircle size={15} aria-hidden="true" />
-          <span>{describeFormError(registration.error)}</span>
-        </p>
+        <div className="auth-alert" role="alert">
+          <AlertCircle size={18} aria-hidden="true" />
+          <p>{describeFormError(registration.error)}</p>
+        </div>
       ) : null}
 
       <form className="auth-form" onSubmit={submit} noValidate>
-        <Field id="register-name" label="Full name" error={errors.personName}>
+        <FcField
+          id="register-name"
+          label="Full name"
+          error={errors.personName}
+        >
           <input
             id="register-name"
             name="name"
@@ -178,9 +133,9 @@ export function RegisterScreen() {
             }
             placeholder="e.g. Sara Mohamed"
           />
-        </Field>
+        </FcField>
 
-        <Field id="register-email" label="Email" error={errors.email}>
+        <FcField id="register-email" label="Email" error={errors.email}>
           <input
             id="register-email"
             name="email"
@@ -195,9 +150,13 @@ export function RegisterScreen() {
             }
             placeholder="you@example.com"
           />
-        </Field>
+        </FcField>
 
-        <Field id="register-phone" label="Phone number" error={errors.phoneNumber}>
+        <FcField
+          id="register-phone"
+          label="Phone number"
+          error={errors.phoneNumber}
+        >
           <input
             id="register-phone"
             name="phone"
@@ -212,13 +171,13 @@ export function RegisterScreen() {
             }
             placeholder="+20 100 123 4567"
           />
-        </Field>
+        </FcField>
 
-        <Field
+        <FcField
           id="register-password"
           label="Password"
           error={errors.password}
-          hint={errors.password ? undefined : 'Use at least 8 characters.'}
+          hint={passwordHint}
         >
           <span className="password-control">
             <input
@@ -230,7 +189,9 @@ export function RegisterScreen() {
               onChange={(event) => update('password', event.target.value)}
               aria-invalid={Boolean(errors.password)}
               aria-describedby={
-                errors.password ? 'register-password-error' : 'register-password-hint'
+                errors.password
+                  ? 'register-password-error'
+                  : 'register-password-hint'
               }
               placeholder="Choose a password"
             />
@@ -248,9 +209,9 @@ export function RegisterScreen() {
               )}
             </button>
           </span>
-        </Field>
+        </FcField>
 
-        <Field
+        <FcField
           id="register-password-confirm"
           label="Confirm password"
           error={errors.passwordConfirm}
@@ -270,21 +231,21 @@ export function RegisterScreen() {
             }
             placeholder="Repeat your password"
           />
-        </Field>
+        </FcField>
 
         <button
           type="submit"
-          className="btn btn--primary btn--block auth-submit"
+          className="fc-btn fc-btn--primary fc-btn--block auth-submit"
           disabled={registration.isPending}
         >
           {registration.isPending ? (
-            <Spinner />
+            <FcSpinner />
           ) : (
             <UserPlus size={16} aria-hidden="true" />
           )}
-          {registration.isPending ? 'Creating account…' : 'Create account'}
+          {registration.isPending ? 'Creating account…' : 'Create patient account'}
         </button>
       </form>
-    </AuthFrame>
+    </FriendlyAuthScreen>
   );
 }

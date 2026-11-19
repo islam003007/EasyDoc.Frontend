@@ -21,13 +21,13 @@ import { DoctorBoardScreen } from './screens/DoctorBoardScreen';
 import { DoctorDetailScreen } from './screens/DoctorDetailScreen';
 import { DoctorProfileScreen } from './screens/DoctorProfileScreen';
 import { DoctorScheduleScreen } from './screens/DoctorScheduleScreen';
+import { FriendlyLoginPage } from './features/auth/friendly/FriendlyLoginPage';
+import { FriendlyRegisterPage } from './features/auth/friendly/FriendlyRegisterPage';
+import { FriendlyStandardLoginPage } from './features/auth/friendly/FriendlyStandardLoginPage';
 import { ForbiddenScreen } from './screens/ForbiddenScreen';
-import { LoginScreen } from './screens/LoginScreen';
 import { NotFoundScreen } from './screens/NotFoundScreen';
 import { PatientSearchScreen } from './screens/PatientSearchScreen';
 import { PatientVisitsScreen } from './screens/PatientVisitsScreen';
-import { RegisterScreen } from './screens/RegisterScreen';
-import { StandardLoginScreen } from './screens/StandardLoginScreen';
 import { AppShell } from './ui/AppShell';
 
 class AppErrorBoundary extends Component<
@@ -94,9 +94,9 @@ function RootRedirect() {
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginScreen />} />
-      <Route path="/login/standard" element={<StandardLoginScreen />} />
-      <Route path="/register" element={<RegisterScreen />} />
+      <Route path="/login" element={<FriendlyLoginPage />} />
+      <Route path="/login/standard" element={<FriendlyStandardLoginPage />} />
+      <Route path="/register" element={<FriendlyRegisterPage />} />
       <Route path="/" element={<RootRedirect />} />
 
       <Route

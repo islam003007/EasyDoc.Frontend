@@ -11,7 +11,6 @@ import './styles/tokens.css';
 import './styles/base.css';
 import './styles/shell.css';
 import './styles/ui.css';
-import './styles/screens-auth.css';
 import './styles/screens-patient.css';
 import './styles/screens-doctor.css';
 import './styles/screens-admin.css';
