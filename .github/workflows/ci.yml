@@ -36,5 +36,6 @@ jobs:
           cache-dependency-path: EasyDoc.Web2/package-lock.json
       - run: npm ci
       - run: npm run check
+      - run: npm run check:sizes
       - run: npm test
       - run: npm run build
