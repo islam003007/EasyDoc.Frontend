@@ -3,22 +3,29 @@ import {
   ArrowLeft,
   ArrowRight,
   CalendarCheck2,
+  CalendarX2,
   Clock3,
   Mail,
   MapPin,
   Phone,
   Stethoscope,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import type { Slot } from '../api/contracts';
 import {
   createAppointment,
   fetchDoctor,
+  fetchPatientAppointments,
   fetchSlots,
   queryKeys,
 } from '../api/queries';
 import { useSession } from '../auth/SessionProvider';
+import {
+  conflictDatesForDoctor,
+  sameDayDoctorConflict,
+} from '../lib/appointments';
+import { bookingErrorMessage } from '../lib/bookingErrors';
 import {
   formatDateLong,
   formatDateMedium,
@@ -28,7 +35,7 @@ import {
 } from '../lib/dates';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
 import { DateRail } from '../ui/DateRail';
-import { ErrorPanel, InlineError } from '../ui/ErrorPanel';
+import { ErrorPanel } from '../ui/ErrorPanel';
 import { Skeleton, Spinner } from '../ui/Loading';
 import { Monogram } from '../ui/Monogram';
 import { SlotPicker } from '../ui/SlotPicker';
@@ -60,6 +67,26 @@ export function DoctorDetailScreen() {
     enabled: Boolean(doctorId),
   });
 
+  const patientAppointments = useQuery({
+    queryKey: queryKeys.patientAppointments,
+    queryFn: ({ signal }) => fetchPatientAppointments(signal),
+    enabled: Boolean(doctorId),
+  });
+
+  const conflict = sameDayDoctorConflict(
+    patientAppointments.data,
+    doctorId,
+    selectedDate,
+  );
+  const conflictDates = useMemo(
+    () => conflictDatesForDoctor(patientAppointments.data, doctorId),
+    [patientAppointments.data, doctorId],
+  );
+  const checkingConflict = patientAppointments.isPending;
+  const conflictCheckFailed = patientAppointments.isError;
+  const bookingBlocked =
+    Boolean(conflict) || checkingConflict || conflictCheckFailed;
+
   const booking = useMutation({
     mutationFn: (input: { date: string; slot: Slot }) =>
       createAppointment({
@@ -76,6 +103,10 @@ export function DoctorDetailScreen() {
       void queryClient.invalidateQueries({
         queryKey: queryKeys.patientAppointments,
       });
+    },
+    onError: () => {
+      void slotsQuery.refetch();
+      void patientAppointments.refetch();
     },
   });
 
@@ -269,7 +300,55 @@ export function DoctorDetailScreen() {
               </div>
 
               <div className="booking-panel__body">
-                <DateRail value={selectedDate} onChange={chooseDate} />
+                <DateRail
+                  value={selectedDate}
+                  onChange={chooseDate}
+                  conflictDates={conflictDates}
+                />
+
+                {conflict ? (
+                  <div className="booking-block" role="status">
+                    <CalendarX2 size={17} aria-hidden="true" />
+                    <div>
+                      <strong>
+                        You already have a visit with this doctor on this day.
+                      </strong>
+                      <p>
+                        Open that visit from My visits, or choose another date
+                        from the rail.
+                      </p>
+                      <Link to="/patient/appointments" className="text-link">
+                        Open My visits
+                        <ArrowRight size={13} aria-hidden="true" />
+                      </Link>
+                    </div>
+                  </div>
+                ) : null}
+
+                {checkingConflict ? (
+                  <p className="booking-check" role="status">
+                    Checking your existing visits…
+                  </p>
+                ) : null}
+
+                {conflictCheckFailed ? (
+                  <div className="booking-block" role="alert">
+                    <CalendarX2 size={17} aria-hidden="true" />
+                    <div>
+                      <strong>We could not check your existing visits.</strong>
+                      <p>Retry before requesting another time.</p>
+                      <button
+                        type="button"
+                        className="text-link link-button"
+                        onClick={() => {
+                          void patientAppointments.refetch();
+                        }}
+                      >
+                        Retry the check
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
 
                 {success ? (
                   <div className="request-slip" role="status">
@@ -303,10 +382,10 @@ export function DoctorDetailScreen() {
                     setSelectedSlot(slot);
                     booking.reset();
                   }}
-                  disabled={booking.isPending}
+                  disabled={booking.isPending || bookingBlocked}
                 />
 
-                {selectedSlot ? (
+                {selectedSlot && !bookingBlocked ? (
                   <div className="hold-slip">
                     <p className="hold-slip__label">Holding</p>
                     <p className="hold-slip__time">
@@ -323,7 +402,7 @@ export function DoctorDetailScreen() {
                       onClick={() =>
                         booking.mutate({ date: selectedDate, slot: selectedSlot })
                       }
-                      disabled={booking.isPending}
+                      disabled={booking.isPending || bookingBlocked}
                     >
                       {booking.isPending ? (
                         <Spinner />
@@ -339,9 +418,9 @@ export function DoctorDetailScreen() {
                 ) : null}
 
                 {booking.isError ? (
-                  <div style={{ marginTop: '0.8rem' }}>
-                    <InlineError error={booking.error} />
-                  </div>
+                  <p className="form-error" role="alert" style={{ marginTop: '0.8rem' }}>
+                    {bookingErrorMessage(booking.error)}
+                  </p>
                 ) : null}
               </div>
             </aside>

@@ -8,7 +8,7 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
-import { useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import type { DoctorSchedule, ScheduleOverride } from '../api/contracts';
 import {
@@ -37,6 +37,10 @@ import {
   todayIso,
 } from '../lib/dates';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
+import {
+  availableScheduleDays,
+  takenOverrideDates,
+} from '../lib/schedule';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { Dialog } from '../ui/Dialog';
 import { ErrorPanel, InlineError } from '../ui/ErrorPanel';
@@ -202,6 +206,48 @@ export function DoctorScheduleScreen() {
   const weeklySchedules = schedules.data ?? [];
   const overrideList = overrides.data ?? [];
 
+  const availableDays = useMemo(
+    () => availableScheduleDays(weeklySchedules),
+    [weeklySchedules],
+  );
+
+  const overrideDatesTaken = useMemo(
+    () => takenOverrideDates(overrideList),
+    [overrideList],
+  );
+
+  const overrideDateTaken = overrideDatesTaken.has(overrideDate);
+  const canAddSchedule =
+    availableDays.length > 0 &&
+    availableDays.includes(scheduleDay) &&
+    timeSortKey(scheduleEnd) > timeSortKey(scheduleStart);
+  const canAddOverride =
+    Boolean(overrideDate) &&
+    !overrideDateTaken &&
+    (!overrideAvailable || timeSortKey(overrideEnd) > timeSortKey(overrideStart));
+
+  useEffect(() => {
+    if (availableDays.length > 0 && !availableDays.includes(scheduleDay)) {
+      setScheduleDay(availableDays[0]);
+    }
+  }, [availableDays, scheduleDay]);
+
+  const editAvailableDays = useMemo(
+    () =>
+      scheduleEditTarget
+        ? availableScheduleDays(weeklySchedules, scheduleEditTarget.id)
+        : [],
+    [weeklySchedules, scheduleEditTarget],
+  );
+  const editDayTaken =
+    Boolean(scheduleEditTarget) && !editAvailableDays.includes(scheduleEditDay);
+
+  const editOverrideDateTaken = overrideEditTarget
+    ? takenOverrideDates(overrideList, overrideEditTarget.id).has(
+        overrideEditDate,
+      )
+    : false;
+
   const stats = useMemo(() => {
     const totalMinutes = weeklySchedules.reduce(
       (total, schedule) =>
@@ -240,13 +286,13 @@ export function DoctorScheduleScreen() {
 
   function submitSchedule(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!scheduleOrder) return;
+    if (!canAddSchedule) return;
     addSchedule.mutate();
   }
 
   function submitOverride(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!overrideOrder || !overrideDate) return;
+    if (!canAddOverride) return;
     addOverride.mutate();
   }
 
@@ -267,7 +313,7 @@ export function DoctorScheduleScreen() {
 
   function submitScheduleEdit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!scheduleEditTarget || !scheduleEditOrder) return;
+    if (!scheduleEditTarget || !scheduleEditOrder || editDayTaken) return;
     saveSchedule.mutate({
       scheduleId: scheduleEditTarget.id,
       dayOfWeek: scheduleEditDay,
@@ -287,7 +333,14 @@ export function DoctorScheduleScreen() {
 
   function submitOverrideEdit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!overrideEditTarget || !overrideEditDate || !overrideEditOrder) return;
+    if (
+      !overrideEditTarget ||
+      !overrideEditDate ||
+      !overrideEditOrder ||
+      editOverrideDateTaken
+    ) {
+      return;
+    }
     saveOverride.mutate({
       overrideId: overrideEditTarget.id,
       date: overrideEditDate,
@@ -461,14 +514,16 @@ export function DoctorScheduleScreen() {
                             </span>
                           ))
                         )}
-                        <button
-                          type="button"
-                          className="week-day__add"
-                          onClick={() => prepareScheduleForDay(day)}
-                        >
-                          <Plus size={11} aria-hidden="true" />
-                          Add hours
-                        </button>
+                        {daySchedules.length === 0 ? (
+                          <button
+                            type="button"
+                            className="week-day__add"
+                            onClick={() => prepareScheduleForDay(day)}
+                          >
+                            <Plus size={11} aria-hidden="true" />
+                            Add hours
+                          </button>
+                        ) : null}
                       </div>
                     </div>
                   );
@@ -494,14 +549,20 @@ export function DoctorScheduleScreen() {
               <Field id="add-hours-day" label="Day">
                 <select
                   id="add-hours-day"
-                  value={scheduleDay}
+                  value={
+                    availableDays.includes(scheduleDay) ? String(scheduleDay) : ''
+                  }
                   onChange={(event) => setScheduleDay(Number(event.target.value))}
+                  disabled={availableDays.length === 0}
                 >
-                  {WEEK.map((day) => (
+                  {availableDays.map((day) => (
                     <option key={day} value={day}>
                       {dayName(day)}
                     </option>
                   ))}
+                  {availableDays.length === 0 ? (
+                    <option value="">No days left</option>
+                  ) : null}
                 </select>
               </Field>
               <div className="form-row">
@@ -527,10 +588,16 @@ export function DoctorScheduleScreen() {
                   The end time must be after the start time.
                 </p>
               ) : null}
+              {availableDays.length === 0 ? (
+                <p className="schedule-note" role="status">
+                  Every day already has consulting hours. Edit an existing window
+                  instead.
+                </p>
+              ) : null}
               <button
                 type="submit"
                 className="btn btn--primary btn--block"
-                disabled={!scheduleOrder || addSchedule.isPending}
+                disabled={!canAddSchedule || addSchedule.isPending}
               >
                 {addSchedule.isPending ? <Spinner /> : <Plus size={15} aria-hidden="true" />}
                 {addSchedule.isPending ? 'Adding…' : 'Add hours'}
@@ -639,6 +706,12 @@ export function DoctorScheduleScreen() {
                 />
               </Field>
 
+              {overrideDateTaken ? (
+                <p className="schedule-note" role="status">
+                  This date already has an override. Edit it in the list instead.
+                </p>
+              ) : null}
+
               <label className="check-line">
                 <input
                   type="checkbox"
@@ -680,7 +753,7 @@ export function DoctorScheduleScreen() {
               <button
                 type="submit"
                 className="btn btn--primary btn--block"
-                disabled={!overrideOrder || !overrideDate || addOverride.isPending}
+                disabled={!canAddOverride || addOverride.isPending}
               >
                 {addOverride.isPending ? (
                   <Spinner />
@@ -756,7 +829,7 @@ export function DoctorScheduleScreen() {
               type="submit"
               form="edit-hours-form"
               className="btn btn--primary"
-              disabled={!scheduleEditOrder || saveSchedule.isPending}
+              disabled={!scheduleEditOrder || editDayTaken || saveSchedule.isPending}
             >
               {saveSchedule.isPending ? <Spinner /> : null}
               {saveSchedule.isPending ? 'Saving…' : 'Save hours'}
@@ -773,14 +846,22 @@ export function DoctorScheduleScreen() {
             <Field id="edit-hours-day" label="Day">
               <select
                 id="edit-hours-day"
-                value={scheduleEditDay}
+                value={
+                  editAvailableDays.includes(scheduleEditDay)
+                    ? String(scheduleEditDay)
+                    : ''
+                }
                 onChange={(event) => setScheduleEditDay(Number(event.target.value))}
+                disabled={editAvailableDays.length === 0}
               >
-                {WEEK.map((day) => (
+                {editAvailableDays.map((day) => (
                   <option key={day} value={day}>
                     {dayName(day)}
                   </option>
                 ))}
+                {editAvailableDays.length === 0 ? (
+                  <option value="">No days available</option>
+                ) : null}
               </select>
             </Field>
             <div className="form-row">
@@ -804,6 +885,11 @@ export function DoctorScheduleScreen() {
             {!scheduleEditOrder ? (
               <p className="field__error" role="alert">
                 The end time must be after the start time.
+              </p>
+            ) : null}
+            {editDayTaken ? (
+              <p className="field__error" role="alert">
+                That day already has consulting hours. Choose another day.
               </p>
             ) : null}
             {saveSchedule.isError ? <InlineError error={saveSchedule.error} /> : null}
@@ -838,7 +924,9 @@ export function DoctorScheduleScreen() {
               type="submit"
               form="edit-override-form"
               className="btn btn--primary"
-              disabled={!overrideEditOrder || saveOverride.isPending}
+              disabled={
+                !overrideEditOrder || editOverrideDateTaken || saveOverride.isPending
+              }
             >
               {saveOverride.isPending ? <Spinner /> : null}
               {saveOverride.isPending ? 'Saving…' : 'Save override'}
@@ -860,6 +948,11 @@ export function DoctorScheduleScreen() {
                 onChange={(event) => setOverrideEditDate(event.target.value)}
               />
             </Field>
+            {editOverrideDateTaken ? (
+              <p className="field__error" role="alert">
+                That date already has an override. Choose another date.
+              </p>
+            ) : null}
             <label className="check-line">
               <input
                 type="checkbox"

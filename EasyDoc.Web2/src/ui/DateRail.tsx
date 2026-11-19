@@ -14,10 +14,12 @@ export function DateRail({
   value,
   onChange,
   days = 10,
+  conflictDates,
 }: {
   value: string;
   onChange: (value: string) => void;
   days?: number;
+  conflictDates?: Set<string>;
 }) {
   const today = new Date();
   const dates = Array.from({ length: days }, (_, index) =>
@@ -56,6 +58,13 @@ export function DateRail({
             <span>{index === 0 ? 'Today' : formatWeekdayShort(date)}</span>
             <strong>{formatDayNumber(date)}</strong>
             <span>{formatMonthShort(date)}</span>
+            {conflictDates?.has(date) ? (
+              <span
+                className="date-slip__conflict"
+                title="You already have a visit on this day"
+                aria-label="You already have a visit on this day"
+              />
+            ) : null}
           </button>
         ))}
       </div>

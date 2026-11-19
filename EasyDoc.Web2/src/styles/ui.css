@@ -938,6 +938,14 @@
   color: var(--ink-strong);
 }
 
+.date-slip__conflict {
+  width: 5px;
+  height: 5px;
+  margin-top: 0.15rem;
+  border-radius: 50%;
+  background: var(--amber);
+}
+
 .date-jump {
   display: flex;
   align-items: center;

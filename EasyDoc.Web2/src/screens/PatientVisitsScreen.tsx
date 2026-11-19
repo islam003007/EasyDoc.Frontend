@@ -42,13 +42,14 @@ import {
   todayIso,
   toClockPayload,
 } from '../lib/dates';
+import { conflictDatesForDoctor, sameDayDoctorConflict } from '../lib/appointments';
+import { bookingErrorMessage } from '../lib/bookingErrors';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
 import { DateRail } from '../ui/DateRail';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { Dialog } from '../ui/Dialog';
 import { Empty } from '../ui/Empty';
 import { ErrorPanel } from '../ui/ErrorPanel';
-import { InlineError } from '../ui/ErrorPanel';
 import { Skeleton, Spinner } from '../ui/Loading';
 import { Monogram } from '../ui/Monogram';
 import { Notice } from '../ui/Notice';
@@ -293,6 +294,9 @@ export function PatientVisitsScreen() {
         ),
       });
     },
+    onError: () => {
+      void slotsQuery.refetch();
+    },
   });
 
   const detailDoctor = detailTarget
@@ -302,6 +306,27 @@ export function PatientVisitsScreen() {
     ? doctorsById.get(rescheduleTarget.doctorId)
     : undefined;
   const total = appointments.data?.length ?? 0;
+
+  const rescheduleConflict = rescheduleTarget
+    ? sameDayDoctorConflict(
+        appointments.data,
+        rescheduleTarget.doctorId,
+        rescheduleDate,
+        rescheduleTarget.id,
+      )
+    : undefined;
+
+  const rescheduleConflictDates = useMemo(
+    () =>
+      rescheduleTarget
+        ? conflictDatesForDoctor(
+            appointments.data,
+            rescheduleTarget.doctorId,
+            rescheduleTarget.id,
+          )
+        : new Set<string>(),
+    [appointments.data, rescheduleTarget],
+  );
 
   function openReschedule(appointment: Appointment) {
     const today = todayIso();
@@ -641,7 +666,11 @@ export function PatientVisitsScreen() {
               type="submit"
               form="reschedule-form"
               className="btn btn--primary"
-              disabled={reschedule.isPending || !rescheduleSlot}
+              disabled={
+                reschedule.isPending ||
+                !rescheduleSlot ||
+                Boolean(rescheduleConflict)
+              }
             >
               {reschedule.isPending ? (
                 <Spinner />
@@ -684,7 +713,20 @@ export function PatientVisitsScreen() {
                 setRescheduleSlot(null);
                 reschedule.reset();
               }}
+              conflictDates={rescheduleConflictDates}
             />
+
+            {rescheduleConflict ? (
+              <div className="booking-block" role="status">
+                <CalendarX2 size={17} aria-hidden="true" />
+                <div>
+                  <strong>
+                    You already have a visit with this doctor on this day.
+                  </strong>
+                  <p>Choose another date, or keep the current time.</p>
+                </div>
+              </div>
+            ) : null}
 
             <SlotPicker
               date={rescheduleDate}
@@ -700,10 +742,10 @@ export function PatientVisitsScreen() {
                 setRescheduleSlot(slot);
                 reschedule.reset();
               }}
-              disabled={reschedule.isPending}
+              disabled={reschedule.isPending || Boolean(rescheduleConflict)}
             />
 
-            {rescheduleSlot ? (
+            {rescheduleSlot && !rescheduleConflict ? (
               <div className="hold-slip">
                 <p className="hold-slip__label">New time</p>
                 <p className="hold-slip__time tnum">
@@ -720,7 +762,11 @@ export function PatientVisitsScreen() {
               </div>
             ) : null}
 
-            {reschedule.isError ? <InlineError error={reschedule.error} /> : null}
+            {reschedule.isError ? (
+              <p className="form-error" role="alert">
+                {bookingErrorMessage(reschedule.error)}
+              </p>
+            ) : null}
           </form>
         ) : null}
       </Dialog>
