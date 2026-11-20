@@ -659,11 +659,16 @@
 
 .folder-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.18rem;
-  overflow-x: auto;
+  overflow: visible;
   padding: 0 0 0 0.1rem;
   border-bottom: 1px solid var(--rule);
-  scrollbar-width: thin;
+  scrollbar-width: none;
+}
+
+.folder-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .folder-tab {
@@ -1606,6 +1611,22 @@
 @media (max-width: 700px) {
   .form-row {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .folder-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -ms-overflow-style: none;
+    mask-image: linear-gradient(
+      to right,
+      #000 calc(100% - 2.4rem),
+      transparent
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      #000 calc(100% - 2.4rem),
+      transparent
+    );
   }
 
   .practice-row {
