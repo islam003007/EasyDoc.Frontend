@@ -62,12 +62,12 @@ export function FriendlyStandardLoginPage() {
             </Link>
           </p>
           <Link to="/login" className="fc-btn fc-btn--secondary fc-btn--block">
-            Use a one-click demo role
+            Use a demo seat
             <ArrowRight size={15} aria-hidden="true" />
           </Link>
           <p className="auth-fineprint">
-            Demo environment with sample data. Doctors and demo admins sign in
-            through the one-click seats; no doctor self-registration is offered.
+            Demo environment with sample data. Doctors and demo admins use the demo
+            seats. Doctor self-registration is not available.
           </p>
         </>
       }

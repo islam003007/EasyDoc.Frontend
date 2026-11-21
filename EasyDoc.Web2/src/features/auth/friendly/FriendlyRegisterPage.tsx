@@ -48,7 +48,7 @@ export function FriendlyRegisterPage() {
       const next = await refreshSession();
       if (!next) {
         throw new Error(
-          'Your account was created, but the sign-in could not be confirmed. Refresh the page and sign in from the patient page.',
+          'Your account was created, but the sign-in couldn’t be confirmed. Refresh the page, then sign in again.',
         );
       }
       return next;
@@ -87,7 +87,7 @@ export function FriendlyRegisterPage() {
     <FriendlyAuthScreen
       mode="New patient"
       title="Create your account."
-      lead="A few details are enough to start booking. New patient accounts are confirmed automatically in this demo — please use sample details only."
+      lead="A few details are enough to start booking. New patient accounts are activated automatically in this demo. Please use sample details only."
       footer={
         <>
           <p className="auth-switch">
@@ -97,12 +97,12 @@ export function FriendlyRegisterPage() {
             </Link>
           </p>
           <Link to="/login" className="fc-btn fc-btn--ghost fc-btn--block">
-            Use a demo role instead
+            Use a demo seat instead
             <ArrowRight size={15} aria-hidden="true" />
           </Link>
           <p className="auth-fineprint">
-            Patient registration only. Doctor and demo-admin seats are seeded
-            accounts. Sample data may be reset.
+            Patient registration only. Doctor and demo admin seats are already set
+            up. Sample data may be reset.
           </p>
         </>
       }

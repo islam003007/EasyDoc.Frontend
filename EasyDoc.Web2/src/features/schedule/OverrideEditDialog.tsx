@@ -87,7 +87,7 @@ export function OverrideEditDialog({
                 setOverrideEditAvailable(event.target.checked)
               }
             />
-            <span>Open extra hours instead of closing</span>
+            <span>Add extra hours instead of closing</span>
           </label>
           {overrideEditAvailable ? (
             <div className="form-row">

@@ -27,6 +27,7 @@ import {
   relativeDateLabel,
 } from '../lib/dates';
 import { ExaminationRecord, BoardRow } from '../features/board/BoardRow';
+import { statusLabel } from '../lib/format';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { Dialog } from '../ui/Dialog';
@@ -39,7 +40,6 @@ import { Notice } from '../ui/Notice';
 import { PageHeader } from '../ui/PageHeader';
 import { Stamp, StatusStamp } from '../ui/Stamp';
 import { StatStrip } from '../ui/StatStrip';
-
 type BoardFilter = 'all' | 'pending' | 'scheduled' | 'closed';
 
 const RANK: Record<Appointment['status'], number> = {
@@ -99,7 +99,7 @@ export function DoctorBoardScreen() {
     onSuccess: (_data, appointment) => {
       setDeclineTarget(null);
       setNotice(
-        `Canceled the ${relativeDateLabel(appointment.date)} request at ${formatTimeRange(
+        `Declined the ${relativeDateLabel(appointment.date)} request at ${formatTimeRange(
           appointment.startTime,
           appointment.endTime,
         )}.`,
@@ -206,7 +206,7 @@ export function DoctorBoardScreen() {
     <div className="page">
       <PageHeader
         title="The day, in order."
-        lead="Requests first, then confirmed visits and the closed record. Open any visit for its notes, or read a patient's history with your practice."
+        lead="Requests first, then confirmed and past visits. Open a visit for its notes, or read the patient’s history with your practice."
         actions={
           <Link to="/doctor/schedule" className="btn btn--secondary">
             <CalendarDays size={15} aria-hidden="true" />
@@ -236,7 +236,7 @@ export function DoctorBoardScreen() {
       {appointments.isError ? (
         <ErrorPanel
           error={appointments.error}
-          title="The practice board could not be loaded"
+          title="We couldn’t load the practice board"
           onRetry={() => {
             void appointments.refetch();
           }}
@@ -244,7 +244,7 @@ export function DoctorBoardScreen() {
       ) : null}
 
       {appointments.isPending ? (
-        <div className="board-list" aria-busy="true" aria-label="Loading appointments">
+        <div className="board-list" aria-busy="true" aria-label="Loading visits">
           {[0, 1, 2].map((index) => (
             <div key={index} className="board-row">
               <Skeleton width="46px" height="58px" />
@@ -264,14 +264,14 @@ export function DoctorBoardScreen() {
           <StatStrip
             items={[
               {
-                label: 'Awaiting you',
+                label: 'Needs your answer',
                 value: counts.pending,
-                note: 'Pending requests need a decision',
+                note: 'Requests waiting for your response',
               },
               {
-                label: 'Scheduled',
+                label: 'Confirmed',
                 value: counts.scheduled,
-                note: 'Confirmed on the calendar',
+                note: 'Confirmed visits on the calendar',
               },
               {
                 label: 'Completed',
@@ -282,13 +282,13 @@ export function DoctorBoardScreen() {
           />
 
           <div className="toolbar">
-            <div className="segmented" role="group" aria-label="Filter appointments">
+            <div className="segmented" role="group" aria-label="Filter visits">
               {(
                 [
                   ['all', 'All', counts.all],
                   ['pending', 'Requests', counts.pending],
-                  ['scheduled', 'Scheduled', counts.scheduled],
-                  ['closed', 'Closed', counts.closed],
+                  ['scheduled', 'Confirmed', counts.scheduled],
+                  ['closed', 'Past', counts.closed],
                 ] as const
               ).map(([value, label, count]) => (
                 <button
@@ -323,8 +323,8 @@ export function DoctorBoardScreen() {
           {isEmpty ? (
             <Empty
               icon={<CalendarClock size={19} />}
-              title="No appointments yet."
-              description="When a patient books one of your open times, the request lands here for review."
+              title="No visits yet."
+              description="When a patient requests one of your open times, it will appear here for review."
               action={
                 <Link to="/doctor/schedule" className="btn btn--secondary">
                   Review availability
@@ -338,10 +338,10 @@ export function DoctorBoardScreen() {
                 filter === 'pending'
                   ? 'No requests waiting.'
                   : filter === 'scheduled'
-                    ? 'Nothing scheduled.'
-                    : 'Nothing closed yet.'
+                    ? 'No confirmed visits.'
+                    : 'No past visits yet.'
               }
-              description="Switch the filter to see the rest of the practice record."
+              description="Choose another filter to see the rest of your visits."
             />
           ) : (
             <div className="board-list">
@@ -379,7 +379,7 @@ export function DoctorBoardScreen() {
             ? `The ${relativeDateLabel(declineTarget.date)} request at ${formatTimeRange(
                 declineTarget.startTime,
                 declineTarget.endTime,
-              )} will be canceled and the time released. This cannot be undone.`
+              )} will be declined and the time released. This can’t be undone.`
             : ''
         }
         confirmLabel="Decline request"
@@ -398,7 +398,7 @@ export function DoctorBoardScreen() {
       <Dialog
         open={Boolean(detailTarget)}
         title="Visit record"
-        kicker="Appointment detail"
+        kicker="Visit detail"
         onClose={() => setDetailTarget(null)}
         wide
         footer={
@@ -447,7 +447,7 @@ export function DoctorBoardScreen() {
               </div>
               <div>
                 <dt>Status</dt>
-                <dd>{detailTarget.status}</dd>
+                <dd>{statusLabel(detailTarget.status)}</dd>
               </div>
               <div>
                 <dt>Patient</dt>
@@ -455,7 +455,7 @@ export function DoctorBoardScreen() {
               </div>
               <div>
                 <dt>Request</dt>
-                <dd>{detailTarget.patientName ? 'Direct appointment' : 'Name not on request'}</dd>
+                <dd>{detailTarget.patientName ? 'Patient request' : 'Name not on request'}</dd>
               </div>
             </dl>
 
@@ -506,7 +506,7 @@ export function DoctorBoardScreen() {
         {history.isError ? (
           <ErrorPanel
             error={history.error}
-            title="This history did not load"
+            title="We couldn’t load this history"
             onRetry={() => {
               void history.refetch();
             }}
@@ -514,7 +514,7 @@ export function DoctorBoardScreen() {
         ) : null}
 
         {history.isSuccess && (history.data?.length ?? 0) === 0 ? (
-          <p className="quiet">No earlier visits are on record for this patient.</p>
+          <p className="quiet">No earlier visits with your practice.</p>
         ) : null}
 
         {history.isSuccess && (history.data?.length ?? 0) > 0 ? (
@@ -544,7 +544,7 @@ export function DoctorBoardScreen() {
                   ) : (
                     <p className="history-item__empty">
                       {visit.status === 'Canceled'
-                        ? 'Canceled visit — no notes.'
+                        ? 'Canceled visit. No notes were added.'
                         : visit.status === 'Completed'
                           ? 'Completed without notes on file.'
                           : 'Not completed yet.'}
@@ -578,7 +578,7 @@ export function DoctorBoardScreen() {
               }}
               disabled={complete.isPending}
             >
-              Keep it open
+              Go back
             </button>
             <button
               type="submit"
@@ -616,7 +616,7 @@ export function DoctorBoardScreen() {
                 id="visit-prescription"
                 value={prescription}
                 onChange={(event) => setPrescription(event.target.value)}
-                placeholder="What is the patient taking away?"
+                placeholder="Medicine, dose, and instructions."
                 required
               />
             </Field>

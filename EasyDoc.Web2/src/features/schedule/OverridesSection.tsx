@@ -45,8 +45,8 @@ export function OverridesSection({
 
         {overrides.isSuccess && sortedOverrides.length === 0 ? (
           <p className="quiet">
-            No date overrides. The weekly hours apply to every week until you
-            add one.
+            No date overrides. Your weekly hours apply every week until you add
+            one.
           </p>
         ) : null}
 

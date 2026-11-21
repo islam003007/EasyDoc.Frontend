@@ -1,3 +1,12 @@
+import { ApiError, humanizeMessage } from './errors';
+export {
+  ApiError,
+  describeError,
+  describeFormError,
+  humanizeMessage,
+  isApiError,
+} from './errors';
+
 const configuredBase = import.meta.env.VITE_API_BASE_URL?.trim();
 export const API_BASE = (configuredBase || '/api').replace(/\/+$/, '');
 
@@ -6,34 +15,6 @@ interface ProblemBody {
   detail?: unknown;
   errors?: unknown;
   [key: string]: unknown;
-}
-
-export class ApiError extends Error {
-  readonly status: number;
-  readonly title?: string;
-  readonly detail?: string;
-  readonly validationErrors?: Record<string, string[]>;
-
-  constructor(
-    status: number,
-    message: string,
-    options?: {
-      title?: string;
-      detail?: string;
-      validationErrors?: Record<string, string[]>;
-    },
-  ) {
-    super(message);
-    this.name = 'ApiError';
-    this.status = status;
-    this.title = options?.title;
-    this.detail = options?.detail;
-    this.validationErrors = options?.validationErrors;
-  }
-}
-
-export function isApiError(error: unknown): error is ApiError {
-  return error instanceof ApiError;
 }
 
 function textOf(value: unknown): string | undefined {
@@ -103,12 +84,14 @@ function problemMessage(
 
   return {
     message:
-      detail ??
-      validationSummary ??
-      title ??
-      (status === 0
-        ? 'The clinic service could not be reached.'
-        : 'The request could not be completed. Please try again.'),
+      humanizeMessage(
+        detail ??
+          validationSummary ??
+          title ??
+          (status === 0
+            ? 'We couldn’t reach the clinic.'
+            : 'Something went wrong. Try again.'),
+      ),
     title,
     detail,
   };
@@ -163,7 +146,7 @@ export async function apiRequest<T>(
     if (error instanceof DOMException && error.name === 'AbortError') throw error;
     throw new ApiError(
       0,
-      'The clinic service could not be reached. Check the connection and try again.',
+      'We couldn’t reach the clinic. Check your connection and try again.',
     );
   }
 
@@ -196,37 +179,4 @@ export function withQuery(
   }
   const query = search.toString();
   return query ? `${path}?${query}` : path;
-}
-
-export function describeError(error: unknown): string {
-  if (isApiError(error)) {
-    if (error.status === 401) return 'Your sign-in has ended. Sign in again.';
-    if (error.status === 403) return 'This action is not allowed for your role.';
-    if (error.status === 404) return 'That record could not be found.';
-    return error.detail ?? error.message;
-  }
-  if (error instanceof Error) return error.message;
-  return 'Something unexpected happened. Please try again.';
-}
-
-/**
- * Form submissions care about the concrete validation messages the API returns,
- * which are more useful than the generic problem title/detail.
- */
-export function describeFormError(error: unknown): string {
-  if (isApiError(error)) {
-    const validation = error.validationErrors;
-    if (validation) {
-      const messages = Array.from(
-        new Set(
-          Object.values(validation)
-            .flat()
-            .map((message) => message.trim())
-            .filter(Boolean),
-        ),
-      );
-      if (messages.length > 0) return messages.join(' ');
-    }
-  }
-  return describeError(error);
 }

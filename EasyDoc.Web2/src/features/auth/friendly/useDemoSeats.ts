@@ -22,7 +22,7 @@ export function useDemoSeats() {
       const next = await refreshSession();
       if (!next) {
         throw new Error(
-          'We could not finish opening this demo seat. Refresh the page and try again.',
+          'We couldn’t open this demo seat. Refresh the page and try again.',
         );
       }
       return next;

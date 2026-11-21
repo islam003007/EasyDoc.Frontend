@@ -27,7 +27,7 @@ export function WeeklyHoursSection({
         </div>
         <span className="mini-label tnum">
           {weeklySchedules.length}{' '}
-          {weeklySchedules.length === 1 ? 'window' : 'windows'}
+          {weeklySchedules.length === 1 ? 'block' : 'blocks'}
         </span>
       </div>
       <div className="sheet__body">
@@ -68,7 +68,7 @@ export function WeeklyHoursSection({
                             type="button"
                             className="window__action"
                             aria-label={`Edit ${dayName(day)} hours`}
-                            title="Edit this window"
+                            title="Edit this block"
                             onClick={() => onEdit(schedule)}
                           >
                             <Pencil size={11} aria-hidden="true" />
@@ -77,7 +77,7 @@ export function WeeklyHoursSection({
                             type="button"
                             className="window__action window__action--danger"
                             aria-label={`Remove ${dayName(day)} hours`}
-                            title="Remove this window"
+                            title="Remove this block"
                             onClick={() => onDelete(schedule)}
                           >
                             <Trash2 size={11} aria-hidden="true" />

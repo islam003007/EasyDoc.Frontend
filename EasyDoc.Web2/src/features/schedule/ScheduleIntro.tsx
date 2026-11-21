@@ -35,7 +35,7 @@ export function ScheduleIntro({
     <>
       <PageHeader
         title="Shape the week."
-        lead="Weekly hours generate the times patients can book. A date override replaces those hours for one day — extra clinic time or a full day off."
+        lead="Weekly hours set the times patients can book. A date override changes one day only — extra hours or a day off."
         actions={
           <Link to="/doctor" className="btn btn--secondary">
             <CalendarCheck2 size={15} aria-hidden="true" />
@@ -53,7 +53,7 @@ export function ScheduleIntro({
       {doctorQuery.isError ? (
         <ErrorPanel
           error={doctorQuery.error}
-          title="Your doctor profile could not be loaded"
+          title="We couldn’t load your profile"
           onRetry={() => {
             void doctorQuery.refetch();
           }}
@@ -93,7 +93,7 @@ export function ScheduleIntro({
       {schedules.isError || overrides.isError ? (
         <ErrorPanel
           error={schedules.error ?? overrides.error}
-          title="Schedule data could not be loaded"
+          title="We couldn’t load your schedule"
           onRetry={() => {
             void schedules.refetch();
             void overrides.refetch();
@@ -117,7 +117,7 @@ export function ScheduleIntro({
             {
               label: 'Overrides',
               value: overrideCount,
-              note: `${stats.futureOverrides} still ahead`,
+              note: `${stats.futureOverrides} upcoming`,
             },
           ]}
         />

@@ -41,7 +41,7 @@ export function ConfirmDialog({
             onClick={onClose}
             disabled={pending}
           >
-            Keep it
+            Go back
           </button>
           <button
             type="button"
@@ -50,7 +50,7 @@ export function ConfirmDialog({
             disabled={pending}
           >
             {pending ? <Spinner /> : null}
-            {pending ? (pendingLabel ?? 'Working…') : confirmLabel}
+            {pending ? (pendingLabel ?? 'Please wait…') : confirmLabel}
           </button>
         </>
       }

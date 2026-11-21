@@ -135,7 +135,7 @@ export function PatientSearchScreen() {
       <PageHeader
         kicker="Care directory"
         title="Find the right care."
-        lead="Search the seeded Egypt network by name, specialty, or city — then open a practice to see its real open times."
+        lead="Search the Egypt care network by name, specialty, or city, then open a doctor’s profile to see their open times."
       />
 
       <form
@@ -253,27 +253,27 @@ export function PatientSearchScreen() {
               ) : departmentId ? (
                 departmentNames.get(departmentId) ?? 'Specialty'
               ) : (
-                'All practices'
+                'All doctors'
               )}
             </h2>
             <p className="mini-label">
               {doctors.isPending
                 ? 'Looking through the clinic…'
                 : doctors.isError
-                  ? 'The directory did not answer'
-                  : `${results.length} visible ${results.length === 1 ? 'profile' : 'profiles'}`}
+                  ? 'We couldn’t load the directory'
+                  : `${results.length} ${results.length === 1 ? 'doctor' : 'doctors'}`}
             </p>
           </div>
           <p className="results-head__note">
             <Languages size={14} aria-hidden="true" />
-            Name search understands Arabic and English spellings.
+            Search works with Arabic and English spellings.
           </p>
         </div>
 
         {doctors.isError ? (
           <ErrorPanel
             error={doctors.error}
-            title="The directory did not answer"
+            title="We couldn’t load the directory"
             onRetry={() => {
               void doctors.refetch();
             }}
@@ -291,11 +291,11 @@ export function PatientSearchScreen() {
         {doctors.isSuccess && results.length === 0 ? (
           <Empty
             icon={hasFilters ? <SearchIcon size={19} /> : <Stethoscope size={19} />}
-            title={hasFilters ? 'No practices match that search.' : 'The directory is quiet.'}
+            title={hasFilters ? 'No doctors match your search.' : 'No doctors are listed yet.'}
             description={
               hasFilters
-                ? 'Try a shorter name, another specialty, or a different city. The demo network is small.'
-                : 'No visible doctors were returned. An administrator may have hidden the directory.'
+                ? 'Try a shorter name, another specialty, or a different city.'
+                : 'No doctors are visible right now. An administrator can check the directory.'
             }
             action={
               hasFilters ? (

@@ -28,7 +28,7 @@ function navForRole(role: string): NavItem[] {
       return [
         {
           to: '/patient',
-          label: 'Find care',
+          label: 'Find a doctor',
           shortLabel: 'Find',
           icon: Search,
           end: true,
@@ -85,7 +85,7 @@ function navForRole(role: string): NavItem[] {
 
 const ROLE_NOTE: Record<string, string> = {
   patient: 'Open times and visit records, kept in one place.',
-  doctor: 'Requests wait on the practice board.',
+  doctor: 'Requests and visits are on the practice board.',
   admin: 'Directory changes stay safe and reversible.',
 };
 
@@ -186,9 +186,9 @@ export function AppShell() {
 
         <footer className="shell__foot">
           <span>
-            <strong>EasyDoc</strong> Open Hours. A working appointment book.
+            <strong>EasyDoc</strong> Open Hours. A working clinic day.
           </span>
-          <span>Portfolio demo. Sample clinic data, may reset.</span>
+          <span>Portfolio demo. Sample clinic data may reset.</span>
         </footer>
       </div>
 
@@ -216,7 +216,7 @@ export function AppShell() {
           }
         >
           <UserRound size={19} aria-hidden="true" />
-          Seat
+          Account
         </NavLink>
       </nav>
     </div>

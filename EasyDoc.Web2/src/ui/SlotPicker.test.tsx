@@ -36,7 +36,7 @@ describe('SlotPicker', () => {
       />,
     );
 
-    expect(screen.getByText('No open times on this date')).toBeInTheDocument();
+    expect(screen.getByText('No open times on this day')).toBeInTheDocument();
   });
 
   it('disables slots when booking is blocked', () => {
@@ -66,7 +66,7 @@ describe('SlotPicker', () => {
       />,
     );
 
-    expect(screen.getByText('Availability did not load')).toBeInTheDocument();
+    expect(screen.getByText('We couldn’t load the open times')).toBeInTheDocument();
     expect(screen.getByText('Network down')).toBeInTheDocument();
   });
 });

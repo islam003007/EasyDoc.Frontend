@@ -25,7 +25,7 @@ export function useAddHoursForm({
         endTime: toTimePayload(scheduleEnd),
       }),
     onSuccess: () => {
-      setNotice(`Added ${dayName(scheduleDay)} hours to the week.`);
+      setNotice(`${dayName(scheduleDay)} hours added.`);
       invalidateScheduleData('schedule');
     },
   });

@@ -50,10 +50,9 @@ class AppErrorBoundary extends Component<
         <div className="centre-screen">
           <div className="fatal">
             <img src="/brand/easydoc-mark.png" alt="" width="56" height="56" />
-            <h1>This page did not open.</h1>
+            <h1>This page didn’t open.</h1>
             <p className="fatal__lead">
-              A screen failed to render. Reload to open this page again, or
-              return to the start.
+              Reload to try again, or go back to the start.
             </p>
             <div className="fatal__actions">
               <button
@@ -61,10 +60,10 @@ class AppErrorBoundary extends Component<
                 className="btn btn--primary"
                 onClick={() => window.location.reload()}
               >
-                Reload EasyDoc
+                Reload page
               </button>
               <a className="btn btn--secondary" href="/">
-                Return to the start
+                Go to the start
               </a>
             </div>
           </div>

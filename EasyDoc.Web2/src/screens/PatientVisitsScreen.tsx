@@ -39,6 +39,7 @@ import {
 import { conflictDatesForDoctor, sameDayDoctorConflict } from '../lib/appointments';
 import { bookingErrorMessage } from '../lib/bookingErrors';
 import { RecordBlock, VisitRow } from '../features/visits/VisitRow';
+import { statusLabel } from '../lib/format';
 import { useDocumentTitle } from '../lib/useDocumentTitle';
 import { DateRail } from '../ui/DateRail';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
@@ -52,7 +53,6 @@ import { PageHeader } from '../ui/PageHeader';
 import { SlotPicker } from '../ui/SlotPicker';
 import { Stamp, StatusStamp } from '../ui/Stamp';
 import { StatStrip } from '../ui/StatStrip';
-
 export function PatientVisitsScreen() {
   useDocumentTitle('My visits');
   const queryClient = useQueryClient();
@@ -155,7 +155,7 @@ export function PatientVisitsScreen() {
       setNotice(
         `Moved the visit to ${formatDateLong(input.date)} at ${formatTime(
           input.slot.startTime,
-        )}. It returns to the doctor's pending queue.`,
+        )}. The doctor will review the new time.`,
       );
       setRescheduleTarget(null);
       setRescheduleSlot(null);
@@ -232,11 +232,11 @@ export function PatientVisitsScreen() {
     <div className="page">
       <PageHeader
         title="My visits."
-        lead="Every request, confirmed visit, and completed note in one place. Open a record to read it, move an open request, or cancel a time."
+        lead="Every request, confirmed visit, and completed note in one place. Open a record to read it, reschedule a visit, or cancel a request."
         actions={
           <Link to="/patient" className="btn btn--secondary">
             <CalendarCheck2 size={15} aria-hidden="true" />
-            Book a visit
+            Find a doctor
           </Link>
         }
       />
@@ -250,7 +250,7 @@ export function PatientVisitsScreen() {
       {appointments.isError ? (
         <ErrorPanel
           error={appointments.error}
-          title="Your visits could not be loaded"
+          title="We couldn’t load your visits"
           onRetry={() => {
             void appointments.refetch();
           }}
@@ -289,12 +289,12 @@ export function PatientVisitsScreen() {
               {
                 label: 'Upcoming',
                 value: upcoming.length,
-                note: 'Pending or scheduled, still ahead',
+                note: 'Requests and confirmed visits still ahead',
               },
               {
-                label: 'Awaiting review',
+                label: 'Awaiting confirmation',
                 value: pendingCount,
-                note: 'A doctor has not accepted yet',
+                note: 'Waiting for the doctor to confirm',
               },
               {
                 label: 'Completed',
@@ -306,7 +306,7 @@ export function PatientVisitsScreen() {
 
           <section className="visit-section" aria-labelledby="upcoming-heading">
             <div className="section-line">
-              <h2 id="upcoming-heading">On the calendar</h2>
+              <h2 id="upcoming-heading">Coming up</h2>
               <span className="mini-label tnum">
                 {upcoming.length} {upcoming.length === 1 ? 'visit' : 'visits'}
               </span>
@@ -345,7 +345,7 @@ export function PatientVisitsScreen() {
 
           <section className="visit-section" aria-labelledby="history-heading">
             <div className="section-line">
-              <h2 id="history-heading">Earlier and closed</h2>
+              <h2 id="history-heading">Visit history</h2>
               <span className="mini-label tnum">
                 {history.length} {history.length === 1 ? 'visit' : 'visits'}
               </span>
@@ -354,16 +354,16 @@ export function PatientVisitsScreen() {
             {history.length === 0 && total === 0 ? (
               <Empty
                 icon={<ClipboardList size={19} />}
-                title="The record is empty."
-                description="Your first booking will appear here with its live status and visit notes."
+                title="No visits yet."
+                description="Your first request will appear here, with its status and visit notes."
                 action={
                   <Link to="/patient" className="btn btn--secondary">
-                    Start with a search
+                    Find a doctor
                   </Link>
                 }
               />
             ) : history.length === 0 ? (
-              <p className="quiet">Nothing in the archive yet.</p>
+              <p className="quiet">No past visits yet.</p>
             ) : (
               <div className="visit-list">
                 {history.map((appointment) => (
@@ -393,7 +393,7 @@ export function PatientVisitsScreen() {
             ? `The ${relativeDateLabel(cancelTarget.date)} visit at ${formatTimeRange(
                 cancelTarget.startTime,
                 cancelTarget.endTime,
-              )} will return to the doctor's calendar. This cannot be undone.`
+              )} will return to the doctor's calendar. This can’t be undone.`
             : ''
         }
         confirmLabel="Cancel visit"
@@ -412,7 +412,7 @@ export function PatientVisitsScreen() {
       <Dialog
         open={Boolean(detailTarget)}
         title="Visit record"
-        kicker="Appointment detail"
+        kicker="Visit detail"
         onClose={() => setDetailTarget(null)}
         wide
         footer={
@@ -461,11 +461,11 @@ export function PatientVisitsScreen() {
               </div>
               <div>
                 <dt>Status</dt>
-                <dd>{detailTarget.status}</dd>
+                <dd>{statusLabel(detailTarget.status)}</dd>
               </div>
               <div>
-                <dt>Clinic</dt>
-                <dd>{detailDoctor?.clinicAddress ?? 'Address on file'}</dd>
+                <dt>Clinic address</dt>
+                <dd>{detailDoctor?.clinicAddress ?? 'Not provided'}</dd>
               </div>
               <div>
                 <dt>Visit length</dt>
@@ -517,7 +517,7 @@ export function PatientVisitsScreen() {
         open={Boolean(rescheduleTarget)}
         title="Move the visit"
         kicker="Reschedule"
-        description="Choose one of the doctor's open times. Saving returns the visit to pending so the doctor can review the new request."
+        description="Choose one of the doctor's open times. The doctor will review the new time before it is confirmed."
         onClose={() => {
           if (!reschedule.isPending) {
             setRescheduleTarget(null);
@@ -564,7 +564,7 @@ export function PatientVisitsScreen() {
           <form id="reschedule-form" className="stack" onSubmit={submitReschedule}>
             <div className="reschedule-summary">
               <div>
-                <p className="mini-label">Current appointment</p>
+                <p className="mini-label">Current visit</p>
                 <strong className="tnum">
                   {formatDateMedium(rescheduleTarget.date)} ·{' '}
                   {formatTimeRange(
@@ -634,8 +634,8 @@ export function PatientVisitsScreen() {
                   )}
                 </p>
                 <p className="hold-slip__note">
-                  The request returns to the doctor&rsquo;s pending queue. You
-                  can still cancel from this page.
+                  The doctor will review the new time. You can cancel it from
+                  My visits if needed.
                 </p>
               </div>
             ) : null}
@@ -653,5 +653,5 @@ export function PatientVisitsScreen() {
 }
 
 function appointmentDoctorFallback(appointment: Appointment): string {
-  return appointment.doctorName ?? 'Care team';
+  return appointment.doctorName ?? 'Your doctor';
 }

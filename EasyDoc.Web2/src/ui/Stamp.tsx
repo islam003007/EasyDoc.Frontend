@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { AppointmentStatus, Role } from '../api/contracts';
+import { statusLabel } from '../lib/format';
 
 export type StampTone = 'pending' | 'scheduled' | 'done' | 'void' | 'solid';
 
@@ -28,7 +29,7 @@ const STATUS_TONE: Record<AppointmentStatus, StampTone> = {
 };
 
 export function StatusStamp({ status }: { status: AppointmentStatus }) {
-  return <Stamp tone={STATUS_TONE[status]}>{status}</Stamp>;
+  return <Stamp tone={STATUS_TONE[status]}>{statusLabel(status)}</Stamp>;
 }
 
 export function RoleStamp({ role }: { role: Role }) {

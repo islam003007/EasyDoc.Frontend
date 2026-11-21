@@ -44,7 +44,7 @@ export function FriendlyAuthScreen({
               <em>real life.</em>
             </h1>
             <p className="auth-aside__lead">
-              Search trusted doctors across Egypt, hold an open time, and keep
+              Search trusted doctors across Egypt, request an open time, and keep
               every visit in one calm place.
             </p>
 
@@ -72,7 +72,7 @@ export function FriendlyAuthScreen({
               </li>
             </ul>
 
-            <p className="auth-aside__foot">Egypt care network · portfolio demo</p>
+            <p className="auth-aside__foot">Egypt care network. Portfolio demo.</p>
           </aside>
 
           <section className="auth-card">

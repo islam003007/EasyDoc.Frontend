@@ -5,11 +5,11 @@ export function LoginBrandPanel() {
     <section className="login-brand-panel">
       <div className="login-brand-panel__top">
         <FcBrand to="/login" light />
-        <span className="login-brand-panel__edition">Portfolio demo · 2026</span>
+        <span className="login-brand-panel__edition">2026 portfolio demo</span>
       </div>
 
       <div className="login-brand-panel__copy">
-        <p className="fc-eyebrow fc-eyebrow--light">EasyDoc · care scheduling</p>
+        <p className="fc-eyebrow fc-eyebrow--light">EasyDoc care scheduling</p>
         <h1>
           Care,
           <br />
@@ -17,12 +17,12 @@ export function LoginBrandPanel() {
         </h1>
         <p>
           A working clinic directory built around real availability. Find a
-          doctor, hold a time, or run the practice — from a seeded demo seat or
-          your own patient account.
+          doctor, request a time, or run the practice, using a demo seat or your
+          own patient account.
         </p>
         <div className="login-brand-chips" aria-label="Demo highlights">
           <span>Egypt care network</span>
-          <span>Arabic + English</span>
+          <span>Arabic and English</span>
           <span>Live availability</span>
         </div>
       </div>
@@ -43,7 +43,7 @@ export function LoginBrandPanel() {
           <span>02</span>
           <div>
             <strong>Pick a real time</strong>
-            <p>Open slots come from weekly hours, date overrides, and bookings.</p>
+            <p>Open times follow the clinic’s weekly hours and any changes to specific days.</p>
           </div>
         </li>
         <li>
@@ -57,7 +57,7 @@ export function LoginBrandPanel() {
 
       <div className="login-brand-panel__foot">
         <span>Egypt care network</span>
-        <span className="fc-mono-label">Sample clinic data · demo accounts</span>
+        <span className="fc-mono-label">Sample clinic data and demo accounts</span>
       </div>
     </section>
   );

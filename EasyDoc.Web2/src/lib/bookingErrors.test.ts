@@ -19,14 +19,14 @@ describe('booking error copy', () => {
     expect(
       bookingErrorMessage(new Error('The doctor is already booked for the selected time')),
     ).toBe(
-      'That time was just taken. The open times have been refreshed — choose another slot.',
+      'That time was just taken. The open times have been refreshed — choose another time.',
     );
   });
 
   it('explains a past time', () => {
     expect(
       bookingErrorMessage(new Error('An appointment date and time must be in the future.')),
-    ).toBe('That time has passed. Pick a later open time.');
+    ).toBe('That time has passed. Choose a later open time.');
   });
 
   it('falls back to the original error', () => {

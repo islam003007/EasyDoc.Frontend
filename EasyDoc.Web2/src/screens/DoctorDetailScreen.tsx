@@ -148,7 +148,7 @@ export function DoctorDetailScreen() {
       {doctorQuery.isError ? (
         <ErrorPanel
           error={doctorQuery.error}
-          title="This practice could not be opened"
+          title="We couldn’t open this profile"
           onRetry={() => {
             void doctorQuery.refetch();
           }}
@@ -166,16 +166,16 @@ export function DoctorDetailScreen() {
               <h1><bdi dir="auto">{doctor.personName}</bdi></h1>
               <p className="doctor-head__lead">
                 {doctor.description ??
-                  'A member of the EasyDoc care network. Choose a date to see the open times held for this practice.'}
+                  'A doctor in the EasyDoc network. Choose a date to see their open times.'}
               </p>
               <div className="doctor-facts">
                 <span>
                   <MapPin size={14} aria-hidden="true" />
-                  {doctor.clinicAddress ?? 'Clinic address on file'}
+                  {doctor.clinicAddress ?? 'Clinic address not provided'}
                 </span>
                 <span>
                   <Clock3 size={14} aria-hidden="true" />
-                  {doctor.defaultAppointmentTimeInMinutes} minute visits
+                  {doctor.defaultAppointmentTimeInMinutes}-minute visits
                 </span>
                 <span>
                   <Stethoscope size={14} aria-hidden="true" />
@@ -196,7 +196,7 @@ export function DoctorDetailScreen() {
                 </div>
                 <div className="sheet__body">
                   <p className="doctor-about">
-                    {doctor.description ?? 'No biography has been added yet.'}
+                    {doctor.description ?? 'This doctor hasn’t added a biography yet.'}
                   </p>
                   <dl className="facts-grid">
                     <div>
@@ -208,7 +208,7 @@ export function DoctorDetailScreen() {
                       <dd>{doctor.city ?? '—'}</dd>
                     </div>
                     <div>
-                      <dt>Clinic</dt>
+                      <dt>Clinic address</dt>
                       <dd>{doctor.clinicAddress ?? '—'}</dd>
                     </div>
                     <div>
@@ -259,18 +259,17 @@ export function DoctorDetailScreen() {
                       <div>
                         <strong>Pick a date</strong>
                         <p>
-                          Open days come from the doctor&rsquo;s weekly schedule
-                          and date overrides.
+                          Open days follow the doctor&rsquo;s weekly hours and any
+                          changes to specific dates.
                         </p>
                       </div>
                     </li>
                     <li>
                       <span className="steps__number tnum">2</span>
                       <div>
-                        <strong>Hold a time</strong>
+                        <strong>Pick a time</strong>
                         <p>
-                          Only genuinely unbooked times appear in the day&rsquo;s
-                          ledger.
+                          Only times that are still open appear for the day.
                         </p>
                       </div>
                     </li>
@@ -294,7 +293,7 @@ export function DoctorDetailScreen() {
                 <p className="sheet__kicker">Availability</p>
                 <h2 id="booking-heading">Choose a time.</h2>
                 <p>
-                  All times are clinic-local. You are booking as{' '}
+                  All times are local to the clinic. You’re requesting as{' '}
                   <strong>{session?.displayName}</strong>.
                 </p>
               </div>
@@ -314,8 +313,7 @@ export function DoctorDetailScreen() {
                         You already have a visit with this doctor on this day.
                       </strong>
                       <p>
-                        Open that visit from My visits, or choose another date
-                        from the rail.
+                        Open it from My visits, or choose another date.
                       </p>
                       <Link to="/patient/appointments" className="text-link">
                         Open My visits
@@ -335,8 +333,8 @@ export function DoctorDetailScreen() {
                   <div className="booking-block" role="alert">
                     <CalendarX2 size={17} aria-hidden="true" />
                     <div>
-                      <strong>We could not check your existing visits.</strong>
-                      <p>Retry before requesting another time.</p>
+                      <strong>We couldn’t check your existing visits.</strong>
+                      <p>Try again before requesting a time.</p>
                       <button
                         type="button"
                         className="text-link link-button"
@@ -344,7 +342,7 @@ export function DoctorDetailScreen() {
                           void patientAppointments.refetch();
                         }}
                       >
-                        Retry the check
+                        Check again
                       </button>
                     </div>
                   </div>
@@ -358,11 +356,11 @@ export function DoctorDetailScreen() {
                       {formatTimeRange(success.slot.startTime, success.slot.endTime)}
                     </h3>
                     <p>
-                      Status is <strong>pending</strong> until the doctor
-                      accepts. You can cancel from My visits.
+                      The doctor will confirm this request. You can cancel it
+                      from My visits.
                     </p>
                     <Link to="/patient/appointments" className="text-link">
-                      View my visits
+                      Go to My visits
                       <ArrowRight size={14} aria-hidden="true" />
                     </Link>
                   </div>
@@ -387,7 +385,7 @@ export function DoctorDetailScreen() {
 
                 {selectedSlot && !bookingBlocked ? (
                   <div className="hold-slip">
-                    <p className="hold-slip__label">Holding</p>
+                    <p className="hold-slip__label">Selected time</p>
                     <p className="hold-slip__time">
                       {formatDateMedium(selectedDate)} ·{' '}
                       {formatTimeRange(
@@ -412,7 +410,7 @@ export function DoctorDetailScreen() {
                       {booking.isPending ? 'Sending request…' : 'Request this time'}
                     </button>
                     <p className="hold-slip__note">
-                      You can cancel while the request is pending or scheduled.
+                      You can cancel this request from My visits.
                     </p>
                   </div>
                 ) : null}

@@ -11,7 +11,7 @@ export const ROLE_ORDER: Role[] = ['patient', 'doctor', 'admin', 'unknown'];
 export const ROLE_TITLE: Record<Role, string> = {
   patient: 'I’m here for care',
   doctor: 'I’m here to practise',
-  admin: 'A sandbox review seat',
+  admin: 'Here to review the directory',
   unknown: 'Another demo seat',
 };
 

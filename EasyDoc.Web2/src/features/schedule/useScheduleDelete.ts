@@ -22,7 +22,7 @@ export function useScheduleDelete({
       setDeleteTarget(null);
       setNotice(
         target.kind === 'schedule'
-          ? 'Consulting hours removed from the week.'
+          ? 'Consulting hours removed.'
           : 'Date override removed.',
       );
       invalidateScheduleData(target.kind === 'schedule' ? 'schedule' : 'override');

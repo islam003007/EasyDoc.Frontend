@@ -81,7 +81,7 @@ export function ScheduleEditDialog({
                 </option>
               ))}
               {editAvailableDays.length === 0 ? (
-                <option value="">No days available</option>
+                <option value="">No open days</option>
               ) : null}
             </select>
           </Field>

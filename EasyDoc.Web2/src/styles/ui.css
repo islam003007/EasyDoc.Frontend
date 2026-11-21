@@ -615,6 +615,8 @@
 
 .segmented {
   display: inline-flex;
+  flex-wrap: wrap;
+  max-width: 100%;
   overflow: hidden;
   border: 1px solid var(--rule);
   border-radius: var(--radius-sm);
@@ -1546,6 +1548,7 @@
 
 .stack {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.9rem;
 }
 

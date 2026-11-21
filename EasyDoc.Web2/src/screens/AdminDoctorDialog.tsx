@@ -99,9 +99,9 @@ function DoctorForm({
   return (
     <Dialog
       open
-      title="Doctor record"
+      title="Edit doctor"
       kicker="Admin directory"
-      description="Edit the profile patients see and the details used by scheduling. Nothing is removed from the directory."
+      description="Edit the profile patients see and the details used for scheduling. This does not remove the doctor from the directory."
       onClose={() => {
         if (!save.isPending) onClose();
       }}
@@ -139,7 +139,7 @@ function DoctorForm({
         </div>
 
         <div className="form-row">
-          <Field id="admin-doctor-name" label="Name">
+          <Field id="admin-doctor-name" label="Full name">
             <input
               id="admin-doctor-name"
               value={personName}
@@ -148,7 +148,7 @@ function DoctorForm({
               required
             />
           </Field>
-          <Field id="admin-doctor-phone" label="Phone">
+          <Field id="admin-doctor-phone" label="Public phone">
             <input
               id="admin-doctor-phone"
               type="tel"
@@ -178,7 +178,7 @@ function DoctorForm({
           <Field
             id="admin-doctor-duration"
             label="Default visit length"
-            hint="Minutes per appointment, 10–120."
+            hint="Minutes per visit, 10–120."
           >
             <input
               id="admin-doctor-duration"
@@ -202,19 +202,19 @@ function DoctorForm({
           />
         </Field>
 
-        <Field id="admin-doctor-description" label="Description">
+        <Field id="admin-doctor-description" label="Biography">
           <textarea
             id="admin-doctor-description"
             value={description}
             onChange={(event) => setDescription(event.target.value)}
-            placeholder="How the practice describes itself to patients"
+            placeholder="What should patients know about the practice?"
           />
         </Field>
 
         <Field
           id="admin-doctor-picture"
           label="Profile picture URL"
-          hint="Optional. This demo draws a monogram instead."
+          hint="Optional. This demo uses initials instead of a photo."
         >
           <input
             id="admin-doctor-picture"
@@ -228,7 +228,7 @@ function DoctorForm({
         <Field
           id="admin-doctor-visibility"
           label="Directory visibility"
-          hint="Visibility is reversible at any time from the same record."
+          hint="You can change this at any time."
         >
           <select
             id="admin-doctor-visibility"
@@ -282,7 +282,7 @@ export function AdminDoctorDialog({
   return (
     <Dialog
       open
-      title="Doctor record"
+      title="Edit doctor"
       kicker="Admin directory"
       onClose={onClose}
       wide
@@ -295,7 +295,7 @@ export function AdminDoctorDialog({
       {doctorQuery.isError ? (
         <ErrorPanel
           error={doctorQuery.error}
-          title="This doctor record could not be loaded"
+          title="We couldn’t load this doctor’s record"
           onRetry={() => {
             void doctorQuery.refetch();
           }}
@@ -305,7 +305,7 @@ export function AdminDoctorDialog({
       {cities.isError ? (
         <ErrorPanel
           error={cities.error}
-          title="The city list could not be loaded"
+          title="We couldn’t load the city list"
           onRetry={() => {
             void cities.refetch();
           }}

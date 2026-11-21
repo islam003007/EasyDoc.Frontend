@@ -46,8 +46,8 @@ function shortcutsForRole(role: Role): Shortcut[] {
       return [
         {
           to: '/patient',
-          label: 'Find care',
-          description: 'Search the directory and hold an open time.',
+          label: 'Find a doctor',
+          description: 'Search the directory and request an open time.',
           icon: Search,
         },
         {
@@ -68,7 +68,7 @@ function shortcutsForRole(role: Role): Shortcut[] {
         {
           to: '/doctor/schedule',
           label: 'Schedule',
-          description: 'Shape the weekly hours and date overrides.',
+          description: 'Set weekly hours and date overrides.',
           icon: CalendarDays,
         },
         {
@@ -89,7 +89,7 @@ function shortcutsForRole(role: Role): Shortcut[] {
         {
           to: '/admin/patients',
           label: 'Patient directory',
-          description: 'Read the seeded patient list.',
+          description: 'Review patient accounts.',
           icon: Users,
         },
       ];
@@ -112,7 +112,7 @@ function workspaceForRole(role: Role): string {
 }
 
 export function AccountScreen() {
-  useDocumentTitle('Your seat');
+  useDocumentTitle('Your account');
   const { session, setSession } = useSession();
   const queryClient = useQueryClient();
   const logout = useLogout();
@@ -168,8 +168,8 @@ export function AccountScreen() {
   return (
     <div className="page page--narrow">
       <PageHeader
-        title="Your seat in the clinic."
-        lead="The name, email, and role for this session — plus the quickest way back to the work."
+        title="Your account."
+        lead="The name, email, and role for this session, plus the quickest way back to your work."
         actions={
           <>
             {isPatient ? (
@@ -204,7 +204,7 @@ export function AccountScreen() {
 
       {isPatient && patientMe.isError ? (
         <Notice tone="error">
-          Your contact details could not be loaded.{' '}
+          We couldn’t load your contact details.{' '}
           <button
             type="button"
             className="text-link link-button"
@@ -267,7 +267,7 @@ export function AccountScreen() {
       {shortcuts.length > 0 ? (
         <section className="account-section">
           <div className="section-line">
-            <h2>Carry on with the work</h2>
+            <h2>Shortcuts</h2>
           </div>
           <div className="shortcut-list">
             {shortcuts.map((shortcut) => {
@@ -291,11 +291,11 @@ export function AccountScreen() {
 
       <section className="seat-note">
         <div>
-          <p className="mini-label">Switching seats</p>
-          <h2>Another role is one sign-out away.</h2>
+          <p className="mini-label">Switching roles</p>
+          <h2>Switch to another role.</h2>
           <p>
-            Signing out returns you to the demo desk, where any seeded seat opens
-            in one click. Patient accounts keep their own password.
+            Signing out returns you to the demo desk, where any demo seat opens in
+            one click. Patient accounts keep their own password.
           </p>
         </div>
         <button
@@ -305,7 +305,7 @@ export function AccountScreen() {
           disabled={logout.isPending}
         >
           <KeyRound size={15} aria-hidden="true" />
-          Switch seat
+          Switch role
         </button>
       </section>
 
@@ -318,7 +318,7 @@ export function AccountScreen() {
         open={editOpen}
         title="Edit your details"
         kicker="Patient account"
-        description="Your name and phone number appear on appointments. The email on the account stays fixed."
+        description="Your name and phone number appear on your visits. The email on the account stays fixed."
         onClose={() => {
           if (!savePatient.isPending) {
             setEditOpen(false);

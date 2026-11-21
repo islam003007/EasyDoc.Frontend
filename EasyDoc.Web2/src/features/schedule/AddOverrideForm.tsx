@@ -54,7 +54,7 @@ export function AddOverrideForm({ form }: { form: AddOverrideFormModel }) {
                 setOverrideAvailable(event.target.checked)
               }
             />
-            <span>Open extra hours instead of closing</span>
+            <span>Add extra hours instead of closing</span>
           </label>
 
           {overrideAvailable ? (
@@ -98,8 +98,8 @@ export function AddOverrideForm({ form }: { form: AddOverrideFormModel }) {
           </button>
           {addOverride.isError ? <InlineError error={addOverride.error} /> : null}
           <p className="schedule-note">
-            Leave the box unchecked to close the whole day. Overrides win over
-            the weekly hours for that date only.
+            Leave the box unchecked to close the whole day. This override replaces
+            your weekly hours for that date only.
           </p>
         </form>
       </div>

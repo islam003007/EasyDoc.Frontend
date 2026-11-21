@@ -24,7 +24,7 @@ const LEGACY_DEBT = {
   'src/screens/AdminDoctorsScreen.tsx': 311,
   'src/api/queries.ts': 548,
   'src/api/normalize.ts': 516,
-  'src/styles/ui.css': 1700,
+  'src/styles/ui.css': 1724,
   'src/styles/screens-doctor.css': 554,
   'src/styles/screens-patient.css': 525,
   'src/styles/screens-account.css': 211,

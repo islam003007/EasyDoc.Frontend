@@ -24,7 +24,7 @@ export function AdminPatientDialog({
       open
       title="Patient record"
       kicker="Admin patients"
-      description="A read-only account record. Medical history and appointment notes are not exposed in the admin directory."
+      description="A read-only account record. Medical history and visit notes are not included in the admin directory."
       onClose={onClose}
       footer={
         <button type="button" className="btn btn--primary" onClick={onClose}>
@@ -35,7 +35,7 @@ export function AdminPatientDialog({
       {patientQuery.isError ? (
         <ErrorPanel
           error={patientQuery.error}
-          title="This patient record could not be loaded"
+          title="We couldn’t load this patient’s record"
           onRetry={() => {
             void patientQuery.refetch();
           }}
@@ -74,7 +74,7 @@ export function AdminPatientDialog({
                 <Phone size={12} aria-hidden="true" /> Phone
               </dt>
               <dd className="tnum" dir="ltr">
-                {patientQuery.data.phoneNumber ?? '—'}
+                {patientQuery.data.phoneNumber ?? 'Not provided'}
               </dd>
             </div>
           </dl>
@@ -82,8 +82,8 @@ export function AdminPatientDialog({
           <div className="profile-callout" style={{ marginTop: '0.9rem' }}>
             <ShieldCheck size={16} aria-hidden="true" />
             <p>
-              This drawer is read-only. There are no delete, archive, or edit
-              actions for patient accounts in this admin client.
+              This record is read-only. Patient accounts can’t be edited,
+              archived, or deleted from this admin view.
             </p>
           </div>
         </div>

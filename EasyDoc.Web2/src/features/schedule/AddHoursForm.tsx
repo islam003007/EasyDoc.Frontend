@@ -45,7 +45,7 @@ export function AddHoursForm({ form }: { form: AddHoursFormModel }) {
                 </option>
               ))}
               {availableDays.length === 0 ? (
-                <option value="">No days left</option>
+                <option value="">No open days</option>
               ) : null}
             </select>
           </Field>
@@ -74,8 +74,7 @@ export function AddHoursForm({ form }: { form: AddHoursFormModel }) {
           ) : null}
           {availableDays.length === 0 ? (
             <p className="schedule-note" role="status">
-              Every day already has consulting hours. Edit an existing window
-              instead.
+              Every day already has hours. Edit an existing block instead.
             </p>
           ) : null}
           <button
@@ -88,8 +87,8 @@ export function AddHoursForm({ form }: { form: AddHoursFormModel }) {
           </button>
           {addSchedule.isError ? <InlineError error={addSchedule.error} /> : null}
           <p className="schedule-note">
-            These windows become the bookable times on the patient side.
-            Date overrides replace them for a single day.
+            These hours become the times patients can book. A date override
+            changes them for one day.
           </p>
         </form>
       </div>

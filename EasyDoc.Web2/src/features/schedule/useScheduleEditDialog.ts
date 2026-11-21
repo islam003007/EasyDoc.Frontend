@@ -30,7 +30,7 @@ export function useScheduleEditDialog({
     }) => updateSchedule(input),
     onSuccess: (_data, input) => {
       setScheduleEditTarget(null);
-      setNotice(`Updated ${dayName(input.dayOfWeek)} hours.`);
+      setNotice(`${dayName(input.dayOfWeek)} hours updated.`);
       invalidateScheduleData('schedule');
     },
   });

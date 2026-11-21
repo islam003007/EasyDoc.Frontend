@@ -39,7 +39,7 @@ function DemoUserButton({
         <strong>
           <bdi dir="auto">{user.label}</bdi>
         </strong>
-        <span>{user.email || 'Seeded demo account'}</span>
+        <span>{user.email || 'Demo account'}</span>
       </span>
       <span className="demo-user__action">
         {pending ? 'Opening…' : 'Enter'}
@@ -80,7 +80,7 @@ export function DemoRoleCard({
         <p className="role-card__sandbox">
           <ShieldCheck size={14} aria-hidden="true" />
           Open on purpose for portfolio review. Directory changes are limited to
-          safe, reversible visibility toggles.
+          visibility toggles that can be reversed.
         </p>
       ) : null}
 

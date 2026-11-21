@@ -28,8 +28,8 @@ export function DemoSeatPanel() {
         </p>
         <h2>Choose a demo seat.</h2>
         <p className="login-panel__lead">
-          One click opens a seeded patient, doctor, or demo admin seat. Patient
-          email sign-in and self-registration are also available below.
+          One click opens a demo patient, doctor, or admin seat. Patient email
+          sign-in and self-registration are also available below.
         </p>
 
         <div className="demo-notice">
@@ -39,7 +39,7 @@ export function DemoSeatPanel() {
           <div className="demo-notice__body">
             <p className="demo-notice__title">A demo clinic, open for review.</p>
             <ul>
-              <li>Sample data only — no live patients or real records.</li>
+              <li>Sample data only. No live patients or real records.</li>
               <li>
                 The demo admin seat is intentionally open so every screen can be
                 reviewed.
@@ -52,17 +52,17 @@ export function DemoSeatPanel() {
 
         {login.isError ? (
           <div className="fc-inline-error" role="alert">
-            <strong>Could not open this demo seat</strong>
+            <strong>We couldn’t open this demo seat.</strong>
             <p>
               {login.error instanceof Error
                 ? login.error.message
-                : 'The demo service did not answer. Try again.'}
+                : 'EasyDoc didn’t respond. Try again.'}
             </p>
           </div>
         ) : null}
 
         {users.isPending ? (
-          <div className="role-grid" aria-busy="true" aria-label="Loading demo roles">
+          <div className="role-grid" aria-busy="true" aria-label="Loading demo seats">
             {[0, 1, 2].map((index) => (
               <div key={index} className="role-card role-card--loading">
                 <FcSkeleton width="40%" height="0.8rem" />
@@ -78,14 +78,13 @@ export function DemoSeatPanel() {
           <>
             <FcErrorPanel
               error={users.error}
-              title="Demo roles are unavailable"
+              title="Demo seats are unavailable"
               onRetry={() => {
                 void users.refetch();
               }}
             />
             <p className="fc-helper-note">
-              Demo seats are unavailable right now. Make sure the demo service is
-              running, then try again.
+              Demo seats are unavailable right now. Try again in a moment.
             </p>
           </>
         ) : null}
@@ -93,8 +92,8 @@ export function DemoSeatPanel() {
         {users.isSuccess && groups.length === 0 ? (
           <FcEmpty
             icon={<ShieldCheck size={19} />}
-            title="No demo seats found"
-            description="The demo service answered, but no seeded seats were found. Try again once the demo data is available."
+            title="No demo seats available"
+            description="No demo accounts were found. Try again once the demo is ready."
           />
         ) : null}
 
@@ -132,7 +131,7 @@ export function DemoSeatPanel() {
             </span>
             <span className="login-alt__copy">
               <strong>Create a patient account</strong>
-              <small>Self-register in under a minute.</small>
+              <small>Create an account with your email.</small>
             </span>
             <ArrowUpRight size={17} aria-hidden="true" />
           </Link>

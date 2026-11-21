@@ -97,7 +97,7 @@ export function VisitRow({
         ) : appointment.status === 'Completed' ? (
           <p className="visit__hint">
             <FileText size={13} aria-hidden="true" />
-            No diagnosis or prescription was attached
+            No diagnosis or prescription was recorded
           </p>
         ) : null}
       </div>

@@ -22,9 +22,9 @@ export function ScheduleDeleteDialog({
           ? `${formatTimeRange(
               deleteTarget.schedule.startTime,
               deleteTarget.schedule.endTime,
-            )} on ${dayName(deleteTarget.schedule.dayOfWeek)} will no longer generate bookable times.`
+            )} on ${dayName(deleteTarget.schedule.dayOfWeek)} will no longer be bookable.`
           : deleteTarget?.kind === 'override'
-            ? `The override on ${formatDateLong(deleteTarget.override.date)} will be removed and the weekly hours will apply again.`
+            ? `The override on ${formatDateLong(deleteTarget.override.date)} will be removed, and your weekly hours will apply again.`
             : ''
       }
       confirmLabel="Remove"

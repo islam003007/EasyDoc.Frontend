@@ -62,13 +62,13 @@ export function SlotPicker({
       {error ? (
         <ErrorPanel
           error={error}
-          title="Availability did not load"
+          title="We couldn’t load the open times"
           onRetry={onRetry}
         />
       ) : null}
 
       {isPending ? (
-        <div className="slot-grid" aria-busy="true" aria-label="Loading times">
+        <div className="slot-grid" aria-busy="true" aria-label="Loading open times">
           {Array.from({ length: 6 }, (_, index) => (
             <Skeleton key={index} height="3rem" />
           ))}
@@ -79,10 +79,10 @@ export function SlotPicker({
         <div className="slot-empty">
           <CalendarX2 size={17} aria-hidden="true" />
           <div>
-            <strong>No open times on this date</strong>
+            <strong>No open times on this day</strong>
             <p>
-              Try another day. A day off, a date override, or a fully booked
-              calendar can all empty a date.
+              Try another day. The doctor may be off, have changed hours, or
+              be fully booked.
             </p>
           </div>
         </div>

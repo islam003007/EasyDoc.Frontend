@@ -50,7 +50,7 @@ export function DateRail({
       <div
         ref={railRef}
         className="date-rail"
-        aria-label="Choose an appointment date"
+        aria-label="Choose a visit date"
       >
         {dates.map((date, index) => (
           <button

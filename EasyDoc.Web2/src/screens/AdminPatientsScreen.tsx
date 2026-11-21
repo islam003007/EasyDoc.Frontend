@@ -41,8 +41,8 @@ export function AdminPatientsScreen() {
     <div className="page">
       <PageHeader
         kicker="Network admin"
-        title="The people it serves."
-        lead="A read-only view of the seeded patient directory — names, contact details, and account status. No medical records are exposed here."
+        title="Patient directory."
+        lead="A read-only view of patient accounts: names, contact details, and account status. Medical records are not included."
         actions={
           <button
             type="button"
@@ -67,7 +67,7 @@ export function AdminPatientsScreen() {
       {patients.isError ? (
         <ErrorPanel
           error={patients.error}
-          title="The patient directory could not be loaded"
+          title="We couldn’t load the patient directory"
           onRetry={() => {
             void patients.refetch();
           }}
@@ -94,7 +94,7 @@ export function AdminPatientsScreen() {
               {
                 label: 'Patient accounts',
                 value: all.length,
-                note: 'Seeded directory records',
+                note: 'Including archived accounts',
               },
               {
                 label: 'Active',
@@ -129,7 +129,7 @@ export function AdminPatientsScreen() {
             <Empty
               icon={<UserRound size={19} />}
               title="No patients in the directory."
-              description="The seeded patient list is empty. Refresh, or check that the demo data is loaded."
+              description="No patient accounts are listed. Refresh to check for new records."
             />
           ) : filtered.length === 0 ? (
             <Empty

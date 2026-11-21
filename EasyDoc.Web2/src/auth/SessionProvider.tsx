@@ -83,13 +83,12 @@ export function SessionGate({ children }: { children: ReactNode }) {
           <p className="mini-label">EasyDoc connection</p>
           <h1>We can’t reach EasyDoc right now.</h1>
           <p className="fatal__lead">
-            The clinic service did not answer. Check that the demo service is
-            running, then try again.
+            Check your connection, then try again.
           </p>
           <div style={{ marginTop: '0.9rem' }}>
             <ErrorPanel
               error={error}
-              title="Connection check failed"
+              title="We couldn’t connect"
               onRetry={retry}
             />
           </div>

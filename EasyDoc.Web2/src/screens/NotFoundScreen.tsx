@@ -15,17 +15,17 @@ export function NotFoundScreen() {
           404
         </p>
         <p className="mini-label">Missing page</p>
-        <h1>That page is not in the book.</h1>
+        <h1>We couldn’t find that page.</h1>
         <p className="error-page__lead">
-          The address may be old, or the page may have moved. Return to your
-          workspace and pick up the day from there.
+          The address may be wrong, or the page may have moved. Go back to your
+          workspace to continue.
         </p>
         <div className="error-page__actions">
           <Link to={home} className="btn btn--primary">
-            Back to my workspace
+            Go to my workspace
           </Link>
           <Link to="/account" className="btn btn--secondary">
-            View this seat
+            View your account
           </Link>
         </div>
       </div>

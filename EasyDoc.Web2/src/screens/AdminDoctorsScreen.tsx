@@ -85,7 +85,7 @@ export function AdminDoctorsScreen() {
       <PageHeader
         kicker="Network admin"
         title="The doctor directory."
-        lead="Every doctor profile, including the ones patients cannot see. Open a record to edit its public details, or switch visibility directly in the table."
+        lead="Every doctor profile, including the ones patients can’t see. Open a record to edit its public details, or switch visibility directly in the table."
         actions={
           <button
             type="button"
@@ -117,14 +117,14 @@ export function AdminDoctorsScreen() {
         <Notice tone="error" onDismiss={() => toggle.reset()}>
           {toggle.error instanceof Error
             ? toggle.error.message
-            : 'Visibility could not be changed.'}
+            : 'We couldn’t change visibility.'}
         </Notice>
       ) : null}
 
       {doctors.isError ? (
         <ErrorPanel
           error={doctors.error}
-          title="The admin doctor list could not be loaded"
+          title="We couldn’t load the doctor directory"
           onRetry={() => {
             void doctors.refetch();
           }}
@@ -185,8 +185,8 @@ export function AdminDoctorsScreen() {
           {all.length === 0 ? (
             <Empty
               icon={<Stethoscope size={19} />}
-              title="No doctors in the admin list."
-              description="The directory is empty. Refresh, or check that the demo data is loaded."
+              title="No doctors in the directory."
+              description="The directory is empty. Refresh to check for new records."
             />
           ) : filtered.length === 0 ? (
             <Empty
@@ -213,7 +213,7 @@ export function AdminDoctorsScreen() {
                   <tr>
                     <th scope="col">Doctor</th>
                     <th scope="col">Contact</th>
-                    <th scope="col">Practice</th>
+                    <th scope="col">Specialty</th>
                     <th scope="col">Visibility</th>
                     <th scope="col">
                       <span className="sr-only">Actions</span>
@@ -242,7 +242,7 @@ export function AdminDoctorsScreen() {
                             <span className="muted">{doctor.phoneNumber ?? '—'}</span>
                           </div>
                         </td>
-                        <td data-label="Practice">
+                        <td data-label="Specialty">
                           <div className="cell-stack">
                             <span>{doctor.department ?? '—'}</span>
                             <span className="muted">{doctor.city ?? '—'}</span>
@@ -294,7 +294,7 @@ export function AdminDoctorsScreen() {
           onClose={() => setEditDoctorId(null)}
           onSaved={(updated) => {
             setEditDoctorId(null);
-            setNotice('Doctor record updated.');
+            setNotice('Doctor profile updated.');
             queryClient.setQueryData(
               queryKeys.adminDoctors,
               (current: AdminDoctor[] | undefined) =>

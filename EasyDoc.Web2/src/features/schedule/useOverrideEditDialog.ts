@@ -39,8 +39,8 @@ export function useOverrideEditDialog({
       setOverrideEditTarget(null);
       setNotice(
         input.isAvailable
-          ? `Updated the extra hours for ${formatDateLong(input.date)}.`
-          : `${formatDateLong(input.date)} remains closed.`,
+          ? `Extra hours updated for ${formatDateLong(input.date)}.`
+          : `${formatDateLong(input.date)} is still closed.`,
       );
       invalidateScheduleData('override');
     },

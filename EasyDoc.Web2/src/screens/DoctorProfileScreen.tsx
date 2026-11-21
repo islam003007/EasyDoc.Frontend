@@ -104,8 +104,8 @@ export function DoctorProfileScreen() {
   return (
     <div className="page">
       <PageHeader
-        title="Your public face in the clinic."
-        lead="This is the profile patients see in the directory. Edit the public record here; availability is managed separately."
+        title="Your public profile."
+        lead="This is what patients see in the directory. Edit your public details here; manage availability separately."
         actions={
           <>
             <button
@@ -134,7 +134,7 @@ export function DoctorProfileScreen() {
       {doctorQuery.isError ? (
         <ErrorPanel
           error={doctorQuery.error}
-          title="Your profile could not be loaded"
+          title="We couldn’t load your profile"
           onRetry={() => {
             void doctorQuery.refetch();
           }}
@@ -171,16 +171,16 @@ export function DoctorProfileScreen() {
               <h1><bdi dir="auto">{doctor.personName}</bdi></h1>
               <p className="doctor-head__lead">
                 {doctor.description ??
-                  'No biography has been written yet. A short description helps patients understand the practice before they book.'}
+                  'You haven’t added a biography yet. A short description helps patients know what to expect.'}
               </p>
               <div className="doctor-facts">
                 <span>
                   <MapPin size={14} aria-hidden="true" />
-                  {doctor.clinicAddress ?? 'Clinic address on file'}
+                  {doctor.clinicAddress ?? 'Clinic address not provided'}
                 </span>
                 <span>
                   <Clock3 size={14} aria-hidden="true" />
-                  {doctor.defaultAppointmentTimeInMinutes} minute visits
+                  {doctor.defaultAppointmentTimeInMinutes}-minute visits
                 </span>
                 <span>
                   <Mail size={14} aria-hidden="true" />
@@ -243,7 +243,7 @@ export function DoctorProfileScreen() {
                   <p className="mini-label">Biography</p>
                   <p>
                     {doctor.description ??
-                      'No biography has been added yet. Patients see this space when they open your profile.'}
+                      'You haven’t added a biography yet. Patients see this space on your profile.'}
                   </p>
                 </div>
               </div>
@@ -300,8 +300,8 @@ export function DoctorProfileScreen() {
                   </Link>
                 </div>
                 <p className="profile-preview__note">
-                  Profile photos are managed by URL in this demo; uploads are out
-                  of scope.
+                  Profile photos are added by URL. Uploads aren’t supported in this
+                  demo.
                 </p>
               </div>
             </aside>
@@ -310,8 +310,8 @@ export function DoctorProfileScreen() {
           <section className="profile-callout">
             <Stethoscope size={17} aria-hidden="true" />
             <p>
-              Patients only see profiles an administrator has listed. Hiding a
-              profile is an administrator action, not a doctor one.
+              Patients only see profiles an administrator has listed. Listing and
+              hiding profiles is an administrator action.
             </p>
           </section>
         </>
@@ -412,7 +412,7 @@ export function DoctorProfileScreen() {
               <Field
                 id="profile-picture"
                 label="Profile picture URL"
-                hint="Stored for other clients; this demo draws a monogram."
+                hint="Optional. This demo uses initials instead of a photo."
               >
                 <input
                   id="profile-picture"
