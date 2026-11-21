@@ -2,14 +2,14 @@
   color-scheme: light;
 
   /* Paper and ink */
-  --sheet: #f3f5fb;
-  --sheet-deep: #e9edf8;
+  --sheet: #f2f4fc;
+  --sheet-deep: #e8ecfa;
   --card: #ffffff;
   --card-soft: #fafbff;
   --ink: #211c55;
   --ink-strong: #17123d;
-  --ink-soft: #4a4670;
-  --ink-muted: #5f5b80;
+  --ink-soft: #40386b;
+  --ink-muted: #56507a;
 
   /* Rules and edges */
   --rule: #d9def0;
@@ -17,29 +17,29 @@
   --rule-strong: #b9c1de;
 
   /* The mark's two inks */
-  --pink: #f594bd;
-  --pink-soft: #fbdbe8;
-  --pink-wash: #fdeef5;
-  --pink-strong: #a13266;
+  --pink: #f78ab9;
+  --pink-soft: #fcd6e4;
+  --pink-wash: #fdeaf2;
+  --pink-strong: #a62a66;
 
-  --sky: #92d3ef;
-  --sky-soft: #def4fd;
-  --sky-wash: #effaff;
-  --sky-strong: #146585;
+  --sky: #87d2f2;
+  --sky-soft: #d3f0ff;
+  --sky-wash: #ebfaff;
+  --sky-strong: #0b668f;
 
   /* The mark's offset register */
-  --offset: #a9a7e0;
-  --offset-soft: #dcdcf3;
+  --offset: #a3a0e6;
+  --offset-soft: #d9d8f4;
 
   /* Functional status colours — never brand colour alone */
-  --green: #2b6d53;
-  --green-soft: #e6f5ee;
-  --amber: #8a5a12;
-  --amber-soft: #fdf1dd;
+  --green: #1b704b;
+  --green-soft: #ddf5e7;
+  --amber: #8a5300;
+  --amber-soft: #fce9c7;
   --red: #a72a48;
   --red-soft: #fbe9ef;
-  --slate: #5d5a72;
-  --slate-soft: #efeff7;
+  --slate: #6a5478;
+  --slate-soft: #f3eef8;
 
   --focus: #4a3f8f;
 
