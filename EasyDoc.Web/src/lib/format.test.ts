@@ -15,10 +15,11 @@ describe('format helpers', () => {
     expect(initials('Dr. Ahmed Hassan')).toBe('AH');
   });
 
-  it('uses one initial for Arabic names', () => {
+  it('builds initials from Arabic names', () => {
     expect(isArabicName('أحمد حسن')).toBe(true);
-    expect(initials('أحمد حسن')).toBe('أ');
-    expect(initials('سارة محمد')).toBe('س');
+    expect(isArabicName('Kareem Mohamed')).toBe(false);
+    expect(initials('أحمد حسن')).toBe('أح');
+    expect(initials('سارة محمد')).toBe('سم');
   });
 
   it('handles a single word and an empty name', () => {

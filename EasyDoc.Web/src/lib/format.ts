@@ -14,13 +14,6 @@ export function initials(name: string): string {
 
   const words = cleaned.split(/\s+/).filter(Boolean);
   if (words.length === 0) return 'ED';
-
-  // A single Arabic initial stays centered in the small monogram tiles.
-  // Two joined Arabic letters overflow the 30px admin-table placeholder.
-  if (isArabicName(cleaned)) {
-    return Array.from(cleaned)[0] ?? 'ED';
-  }
-
   if (words.length === 1) {
     return Array.from(words[0]).slice(0, 2).join('');
   }
