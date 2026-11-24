@@ -1,6 +1,13 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
-import { firstName, initials, monogramTone, plural, roleHome } from './format';
+import {
+  firstName,
+  initials,
+  isArabicName,
+  monogramTone,
+  plural,
+  roleHome,
+} from './format';
 
 describe('format helpers', () => {
   it('builds initials from Latin names', () => {
@@ -8,9 +15,10 @@ describe('format helpers', () => {
     expect(initials('Dr. Ahmed Hassan')).toBe('AH');
   });
 
-  it('builds initials from Arabic names', () => {
-    expect(initials('أحمد حسن')).toBe('أح');
-    expect(initials('سارة محمد')).toBe('سم');
+  it('uses one initial for Arabic names', () => {
+    expect(isArabicName('أحمد حسن')).toBe(true);
+    expect(initials('أحمد حسن')).toBe('أ');
+    expect(initials('سارة محمد')).toBe('س');
   });
 
   it('handles a single word and an empty name', () => {

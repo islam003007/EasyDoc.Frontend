@@ -1,4 +1,9 @@
-import { initials, monogramTone, type MonogramTone } from '../lib/format';
+import {
+  initials,
+  isArabicName,
+  monogramTone,
+  type MonogramTone,
+} from '../lib/format';
 
 const SIZES = {
   sm: 'monogram--sm',
@@ -19,7 +24,9 @@ export function Monogram({
   const resolved = tone ?? monogramTone(name);
   return (
     <span
-      className={`monogram monogram--${resolved} ${SIZES[size]}`}
+      className={`monogram monogram--${resolved} ${SIZES[size]} ${
+        isArabicName(name) ? 'monogram--arabic' : ''
+      }`.trim()}
       aria-hidden="true"
     >
       {initials(name)}

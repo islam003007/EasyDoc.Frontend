@@ -1,7 +1,12 @@
 import { AlertCircle, RotateCw } from 'lucide-react';
 import type { CSSProperties, ReactNode } from 'react';
 import { describeError } from '../../api/client';
-import { initials, monogramTone, type MonogramTone } from '../../lib/format';
+import {
+  initials,
+  isArabicName,
+  monogramTone,
+  type MonogramTone,
+} from '../../lib/format';
 
 const MONOGRAM_SIZES = {
   sm: 'auth-monogram--sm',
@@ -20,7 +25,11 @@ export function AuthMonogram({
 }) {
   return (
     <span
-      className={`auth-monogram auth-monogram--${tone ?? monogramTone(name)} ${MONOGRAM_SIZES[size]}`}
+      className={`auth-monogram auth-monogram--${
+        tone ?? monogramTone(name)
+      } ${MONOGRAM_SIZES[size]} ${
+        isArabicName(name) ? 'auth-monogram--arabic' : ''
+      }`.trim()}
       aria-hidden="true"
     >
       {initials(name)}

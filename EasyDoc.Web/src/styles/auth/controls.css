@@ -90,6 +90,11 @@
   letter-spacing: -0.03em;
 }
 
+.auth-monogram--arabic {
+  font-family: var(--font-arabic);
+  letter-spacing: 0;
+}
+
 .auth-monogram--sm {
   width: 2.15rem;
   height: 2.15rem;

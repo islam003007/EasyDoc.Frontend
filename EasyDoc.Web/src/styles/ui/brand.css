@@ -15,6 +15,11 @@
   box-shadow: 2px 2px 0 var(--offset-soft);
 }
 
+.monogram--arabic {
+  font-family: var(--font-arabic);
+  letter-spacing: 0;
+}
+
 .monogram--blush {
   background: var(--pink-soft);
 }
