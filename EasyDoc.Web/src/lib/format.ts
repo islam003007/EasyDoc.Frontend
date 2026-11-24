@@ -1,4 +1,4 @@
-import type { Role } from '../api/contracts';
+import type { AppointmentStatus, Role } from '../api/contracts';
 
 export function initials(name: string): string {
   const cleaned = name
@@ -55,7 +55,22 @@ export function roleBlurb(role: Role): string {
     case 'admin':
       return 'Review the doctor directory and patient list in a safe, reversible sandbox.';
     default:
-      return 'A seeded role for exploring the EasyDoc scheduling flow.';
+      return 'A demo role for exploring EasyDoc.';
+  }
+}
+
+export function statusLabel(status: AppointmentStatus): string {
+  switch (status) {
+    case 'Pending':
+      return 'Requested';
+    case 'Scheduled':
+      return 'Confirmed';
+    case 'Completed':
+      return 'Completed';
+    case 'Canceled':
+      return 'Canceled';
+    default:
+      return 'Unknown';
   }
 }
 

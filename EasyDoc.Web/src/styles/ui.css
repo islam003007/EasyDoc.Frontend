@@ -1,0 +1,11 @@
+/* Shared EasyDoc interface primitives. */
+@import './ui/brand.css';
+@import './ui/controls.css';
+@import './ui/layout.css';
+@import './ui/search.css';
+@import './ui/ledger.css';
+@import './ui/tables.css';
+@import './ui/states.css';
+@import './ui/recovery.css';
+@import './ui/dialog.css';
+@import './ui/utilities.css';

@@ -1,0 +1,124 @@
+/* ---------- Dialog ---------- */
+
+.dialog {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: auto;
+}
+
+.dialog::backdrop {
+  background: rgba(23, 18, 61, 0.4);
+  backdrop-filter: blur(2px);
+}
+
+.dialog__panel {
+  width: min(560px, calc(100vw - 2rem));
+  margin: 6vh auto 4vh;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  box-shadow: var(--shadow-lift);
+  animation: dialog-in 160ms ease-out;
+}
+
+.dialog--wide .dialog__panel {
+  width: min(760px, calc(100vw - 2rem));
+}
+
+.dialog--side .dialog__panel {
+  width: min(520px, 100vw);
+  min-height: 100vh;
+  margin: 0 0 0 auto;
+  border-radius: 0;
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+  animation: drawer-in 180ms ease-out;
+}
+
+.dialog__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.05rem 1.2rem 0.9rem;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.dialog__head h2 {
+  font-size: 1.4rem;
+}
+
+.dialog__kicker {
+  margin-bottom: 0.2rem;
+  color: var(--ink-muted);
+  font-size: var(--text-small);
+  font-weight: 600;
+}
+
+.dialog__description {
+  margin-top: 0.4rem;
+  color: var(--ink-muted);
+  font-size: var(--text-small);
+  line-height: 1.6;
+}
+
+.dialog__close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--ink-muted);
+}
+
+.dialog__close:hover {
+  background: var(--card-soft);
+  color: var(--ink);
+}
+
+.dialog__body {
+  padding: 1.1rem 1.2rem;
+}
+
+.dialog__foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.85rem 1.2rem;
+  border-top: 1px solid var(--rule-soft);
+  background: var(--card-soft);
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes drawer-in {
+  from {
+    opacity: 0.4;
+    transform: translateX(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+

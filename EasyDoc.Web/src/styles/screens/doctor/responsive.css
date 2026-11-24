@@ -1,0 +1,67 @@
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1260px) {
+  .board-row {
+    grid-template-columns: 52px 72px minmax(0, 1fr);
+  }
+
+  .board-row__actions {
+    grid-column: 3;
+    justify-content: flex-start;
+    max-width: none;
+    margin-top: -0.1rem;
+  }
+}
+
+@media (max-width: 1000px) {
+  .schedule-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .board-row {
+    grid-template-columns: 46px 64px minmax(0, 1fr);
+    gap: 0.6rem;
+  }
+
+  .board-row__time {
+    padding-right: 0.45rem;
+  }
+
+  .board-row__actions {
+    grid-column: 2 / -1;
+  }
+
+  .week-day {
+    grid-template-columns: 70px minmax(0, 1fr);
+    gap: 0.6rem;
+  }
+
+  .override-row {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+
+  .override-row__actions {
+    grid-column: 2;
+  }
+
+  .practice-strip {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .practice-strip__link {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 520px) {
+  .history-item__exam {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .window {
+    flex-wrap: wrap;
+  }
+}

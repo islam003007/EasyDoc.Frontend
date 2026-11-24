@@ -1,0 +1,116 @@
+/* ---------- Public profile ---------- */
+
+.profile-bio {
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--rule-soft);
+}
+
+.profile-bio > p:last-child {
+  max-width: 64ch;
+  margin-top: 0.25rem;
+  color: var(--ink-soft);
+  font-size: var(--text-copy);
+  line-height: 1.7;
+}
+
+.profile-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem;
+  border: 1px solid var(--rule);
+  background: var(--card-soft);
+}
+
+.profile-preview__copy {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.35;
+}
+
+.profile-preview__copy strong {
+  overflow: hidden;
+  font-size: var(--text-small);
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-preview__copy span {
+  color: var(--ink-muted);
+  font-size: var(--text-min);
+}
+
+.profile-preview__go {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  color: var(--ink);
+  font-size: 0.6875rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.mini-facts {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.85rem;
+}
+
+.mini-facts > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.mini-facts dt {
+  color: var(--ink-muted);
+  font-size: var(--text-min);
+  font-weight: 600;
+}
+
+.mini-facts dd {
+  color: var(--ink-soft);
+  font-size: var(--text-small);
+  text-align: right;
+}
+
+.profile-shortcuts {
+  margin-top: 0.9rem;
+}
+
+.profile-preview__note {
+  margin-top: 0.7rem;
+  color: var(--ink-muted);
+  font-size: var(--text-min);
+  line-height: 1.55;
+}
+
+.profile-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin-top: 1.15rem;
+  padding: 0.7rem 0.85rem;
+  border-left: 3px solid var(--sky);
+  background: var(--sky-wash);
+  color: var(--ink-soft);
+  font-size: var(--text-small);
+  line-height: 1.55;
+}
+
+.profile-callout svg {
+  flex: none;
+  margin-top: 0.1rem;
+  color: var(--sky-strong);
+}
+
+.profile-callout--spaced {
+  margin-top: 0.9rem;
+}
+

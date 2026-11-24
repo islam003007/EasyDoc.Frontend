@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import type { Role } from '../api/contracts';
-import { ForbiddenPage } from '../pages/ForbiddenPage';
+import { ForbiddenScreen } from '../screens/ForbiddenScreen';
 import { useSession } from './SessionProvider';
 
 export function RequireAuth({ children }: { children: ReactNode }) {
@@ -31,7 +31,7 @@ export function RequireRole({
   const { session } = useSession();
 
   if (!session) return <Navigate to="/login" replace />;
-  if (session.role !== role) return <ForbiddenPage />;
+  if (session.role !== role) return <ForbiddenScreen />;
 
   return <>{children}</>;
 }

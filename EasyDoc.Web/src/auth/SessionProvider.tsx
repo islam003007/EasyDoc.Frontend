@@ -7,8 +7,9 @@ import {
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Session } from '../api/contracts';
 import { fetchSession, queryKeys } from '../api/queries';
-import { ErrorPanel } from '../components/ErrorPanel';
-import { AppLoading } from '../components/Loading';
+import { ErrorPanel } from '../ui/ErrorPanel';
+import { AppLoading } from '../ui/Loading';
+import { RecoveryScreen } from '../ui/RecoveryScreen';
 
 interface SessionContextValue {
   session: Session | null;
@@ -77,21 +78,17 @@ export function SessionGate({ children }: { children: ReactNode }) {
 
   if (error) {
     return (
-      <div className="fatal-screen">
-        <div className="fatal-screen__inner">
-          <p className="mono-label">EasyDoc · connection</p>
-          <h1>We can’t reach EasyDoc right now.</h1>
-          <p className="fatal-screen__lead">
-            The clinic service did not answer. Check that the demo service is
-            running, then try again.
-          </p>
-          <ErrorPanel
-            error={error}
-            title="Connection check failed"
-            onRetry={retry}
-          />
-        </div>
-      </div>
+      <RecoveryScreen
+        eyebrow="EasyDoc · connection"
+        title="We can’t reach EasyDoc right now."
+        lead="The clinic service didn’t answer. Check that the demo API is running and that this browser can reach it, then try again. Your sign-in is safe; nothing was submitted."
+      >
+        <ErrorPanel
+          error={error}
+          title="Connection check failed"
+          onRetry={retry}
+        />
+      </RecoveryScreen>
     );
   }
 

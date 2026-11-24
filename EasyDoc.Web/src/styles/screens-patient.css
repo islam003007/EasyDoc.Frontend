@@ -1,0 +1,6 @@
+/* Patient workspace screens. */
+@import './screens/patient/directory.css';
+@import './screens/patient/booking.css';
+@import './screens/patient/visits.css';
+@import './screens/patient/record.css';
+@import './screens/patient/responsive.css';

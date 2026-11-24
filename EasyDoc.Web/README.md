@@ -1,14 +1,14 @@
 # EasyDoc Web
 
-A role-based portfolio client for the EasyDoc doctor-scheduling API. Demo seats open in one click;
-patient email/password login and self-registration are also available.
+The EasyDoc scheduling client: a role-based clinic directory for patients, doctors, and
+administrators. It talks to the EasyDoc API in a separate repository
+([islam003007/EasyDoc](https://github.com/islam003007/EasyDoc)). Demo seats open in one click;
+patient email/password sign-in and self-registration are also available.
 
-The visual direction is **Friendly Care**: ice-white surfaces, deep indigo, and the pink/sky-blue
-EasyDoc mark, with Plus Jakarta Sans, IBM Plex Sans Arabic, IBM Plex Mono and soft rounded cards.
-The records themselves stay precise.
-
-> A second independent client, **Open Hours**, lives in `../EasyDoc.Web2/` and shares the same API.
-> Both can run side by side; this client is unchanged.
+The interface treats EasyDoc as a working appointment book: cool form paper, navy ink, the pink and
+sky of the mark printed with a visible offset layer, statuses as rubber stamps, and time as the
+structural spine. The display face is Bricolage Grotesque; Archivo carries the interface and tabular
+times; Noto Sans Arabic renders Arabic names inline.
 
 ## Stack
 
@@ -16,120 +16,128 @@ The records themselves stay precise.
 - React Router (`react-router-dom`)
 - TanStack Query and date-fns
 - lucide-react
-- Fontsource: Plus Jakarta Sans, IBM Plex Sans Arabic, IBM Plex Mono
+- Fontsource: Bricolage Grotesque, Archivo, Noto Sans Arabic; the auth surfaces add Plus Jakarta
+  Sans, IBM Plex Sans Arabic and IBM Plex Mono
 - Custom CSS only (no Tailwind or component library)
+- Vitest for pure logic and component tests
 
 ## Run it
 
 Prerequisites:
 
-1. Node.js 22+ (verified on Node 26).
+1. Node.js 22+.
 2. The EasyDoc API at `http://localhost:5215`, with SQL Server configured and migrations applied.
-3. Demo mode enabled (`Demo:Enabled=true` in Development). For immediate patient registration,
-   keep `Demo:AutoConfirmRegistrations=true` in Development.
+3. Demo mode enabled (`Demo:Enabled=true` in Development).
 
 ```bash
 npm install
 npm run dev
+# http://localhost:5174
 ```
 
-Open `http://localhost:5174`.
-
-The browser calls `/api/...`; Vite strips `/api` and proxies to `http://localhost:5215`, keeping
-cookies same-origin. Override with `VITE_API_TARGET` in `.env.local` when the API runs elsewhere.
+The browser calls `/api/...`; Vite strips `/api` and proxies to `http://localhost:5215` so the
+session cookie stays same-origin. Override with `VITE_API_TARGET` when the API runs elsewhere.
 
 | Command | Purpose |
 | --- | --- |
-| `npm run dev` | Vite dev server with `/api` proxy |
-| `npm run build` | Type-check then production build to `dist/` |
-| `npm run preview` | Preview the built SPA with the same proxy |
+| `npm run dev` | Vite dev server on port 5174 with the `/api` proxy |
+| `npm run build` | Type-check then build to `dist/` |
+| `npm run preview` | Preview the build on port 4174 |
 | `npm run check` | Type-check only |
+| `npm test` | Run the Vitest suite |
+| `npm run check:sizes` | Keep screens, hooks, and styles within the size budgets |
 
 Production hosting serves `dist/` for SPA routes and reverse-proxies `/api` to EasyDoc with the
 prefix removed.
-
-## Auth modes
-
-- **Demo roles:** `GET /auth/demo-users` → one-click `POST /auth/demo-login { key }` for patient
-  سارة محمد, doctor أحمد حسن, and the **Demo admin** seat.
-- **Patient sign-in:** `/login/standard` → `POST /auth/login`, then `GET /auth/me`.
-- **Patient registration:** `/register` → `POST /patients/register`, then password login. New
-  accounts are auto-confirmed in demo mode; real email delivery is not part of this build.
-- Doctor and demo-admin registration are not offered. Those seats remain seeded.
-
-## Demo security boundary
-
-The demo is a review sandbox, not a production authentication bypass.
-
-- `Demo:Enabled` is `false` in the base `appsettings.json` and turned on only by
-  `appsettings.Development.json`. A production deployment keeps it off, which disables
-  `/auth/demo-users` and `/auth/demo-login` entirely.
-- Demo login accepts only keys from a server-side allowlist and only signs in the matching seeded
-  account. It does not create users, elevate roles, or bypass API authorization policies.
-- Every API endpoint remains authoritative: admin routes still require the admin role, doctor routes
-  require the doctor role, and patient records are scoped to the signed-in patient.
-- The demo uses separate seeded sample data. Do not enter real or sensitive patient information;
-  demo data may be reset between reviews.
-- The demo admin seat is intentionally open so reviewers can reach every screen. It is limited to
-  safe, reversible work: doctor visibility toggles and the read-only patient directory. There are no
-  destructive admin actions in this client.
-- Demo-only behavior (auto-confirmed registration, log-only email) is documented above and should be
-  replaced before any real deployment.
 
 ## Routes
 
 | Route | Access | Flow |
 | --- | --- | --- |
-| `/login` | Public | Demo role picker + standard/register links |
+| `/login` | Public | Demo seat desk with patient, doctor and demo admin tickets |
 | `/login/standard` | Public | Patient email/password sign-in |
 | `/register` | Public | Patient self-registration |
-| `/patient` | Patient | Search, filters, directory |
-| `/patient/doctors/:doctorId` | Patient | Profile, date rail, slots, booking |
-| `/patient/appointments` | Patient | Upcoming/history, cancel |
-| `/doctor` | Doctor | Practice board; accept/cancel/complete |
-| `/doctor/schedule` | Doctor | Weekly windows, date overrides |
+| `/patient` | Patient | Directory, search, specialty tabs, city filter |
+| `/patient/doctors/:doctorId` | Patient | Practice sheet, 10-day date rail, time ledger, booking |
+| `/patient/appointments` | Patient | Upcoming visits, records, reschedule, cancel |
+| `/doctor` | Doctor | Practice board: requests, scheduled visits, closed record |
+| `/doctor/schedule` | Doctor | Weekly windows and date overrides |
 | `/doctor/profile` | Doctor | Public profile record |
-| `/admin` | Admin | Doctor directory and visibility |
-| `/admin/patients` | Admin | Patient directory |
-| `/account` | Any signed-in role | Account details, shortcuts, switch role/sign out |
+| `/admin` | Admin | Doctor directory, visibility switches, record editing |
+| `/admin/patients` | Admin | Read-only patient directory and record |
+| `/account` | Any role | Seat identity, shortcuts, patient contact edit, switch seat |
+| `/forbidden` | Any role | Role-boundary screen |
 
+Login, registration, and the auth screens load eagerly. The authenticated shell and every screen
+inside it load lazily with a branded loading fallback, so the initial sign-in bundle stays small.
 Every protected route is guarded by `/auth/me`; API policies remain authoritative.
+
+## Auth and demo boundary
+
+- **Demo seats:** `GET /auth/demo-users` then one-click `POST /auth/demo-login { key }` for سارة محمد
+  (patient), أحمد حسن (doctor), and the demo admin.
+- **Patient sign-in:** `POST /auth/login`, then `GET /auth/me`.
+- **Patient registration:** `POST /patients/register`, then password sign-in. Demo mode
+  auto-confirms new accounts.
+- Doctor and admin seats are seeded; there is no doctor/admin self-registration.
+- The demo admin is a review seat, not a production bypass. It can inspect directories and toggle
+  doctor visibility; no destructive admin actions are exposed.
+- Passwords stay in the sign-in form and are never stored in the browser.
+- Sample data only. Demo data may reset between reviews.
+
+## Resilience states
+
+- A full-page branded loading screen covers the initial session check.
+- If the API does not answer, the app explains the connection failure and offers a retry action
+  without losing the current URL.
+- A render error or a failed lazy chunk shows the same consistent recovery layout with reload and
+  return-to-start actions.
+- In-screen queries use error panels with retry, skeletons, and empty states instead of blank
+  regions.
 
 ## API surface used
 
-- `GET /auth/me`, `GET /auth/demo-users`, `POST /auth/demo-login { key }`,
-  `POST /auth/login { email, password }`, `POST /auth/logout`
-- `POST /patients/register` with email/password/confirm/name/phone
+- `GET /auth/me`, `GET /auth/demo-users`, `POST /auth/demo-login`, `POST /auth/login`,
+  `POST /auth/logout`
+- `POST /patients/register`, `GET /patients/me`, `PATCH /patients/me`
 - `GET /lookups/departments`, `GET /lookups/cities`
-- `GET /doctors/search`, `GET /doctors`, `GET /doctors/{id}`,
-  `GET /doctors/{id}/available-slots?date=YYYY-MM-DD`, `GET /doctors/me`
-- `POST /appointments`, `GET /appointments/patient/me`,
-  `POST /appointments/{id}/cancel/patient`
-- `GET /appointments/doctor/me`, `POST /appointments/{id}/accept`,
-  `POST /appointments/{id}/cancel`, `POST /appointments/{id}/Complete`
-- Doctor schedule/override read, add and remove endpoints
-- `GET /admin/doctors`, `PATCH /admin/doctors/{id}` with `{ isVisible }`,
-  `GET /admin/patients`
+- `GET /doctors/search`, `GET /doctors`, `GET /doctors/{id}`, `GET /doctors/me`,
+  `GET /doctors/{id}/available-slots?date=YYYY-MM-DD`
+- `POST /appointments`, `GET /appointments/patient/me`, `POST /appointments/{id}/cancel/patient`,
+  `PATCH /appointments/{id}/reschedule`
+- `GET /appointments/doctor/me`, `POST /appointments/{id}/accept`, `POST /appointments/{id}/cancel`,
+  `POST /appointments/{id}/Complete`, `GET /appointments/patients/{patientId}`
+- Doctor weekly schedule and date-override read/add/update/delete endpoints
+- `GET /admin/doctors`, `GET /admin/doctors/{id}`, `PATCH /admin/doctors/{id}`,
+  `GET /admin/patients`, `GET /admin/patients/{id}`
 
-Responses are normalized tolerantly: arrays or paged `items`, numeric or string enums, and
-`patientName`/`doctorName` appointment additions.
+## Design notes
 
-## Design and behavior notes
+- **The mark:** the colored right-hand mark cut at native 720×720 resolution, with a clean white
+  die-cut edge for darker grounds.
+- **Palette:** `#f3f5fb` sheet, `#211c55` ink, `#f594bd` pink, `#92d3ef` sky, `#a9a7e0` offset.
+  Status colors are functional and separate from the brand inks.
+- **Signature:** the mark's misregistered printing becomes a 3–4px offset shadow on primary
+  actions, held slots, date slips and the login plate. Status stamps are the only all-caps type.
+- **Time is the spine:** the patient's booking panel, the doctor's day rows and the admin registry
+  all share ruled ledgers, date stubs and tabular times.
+- **Motion:** the request slip is stamped on success. Reduced motion is respected globally.
+- **Arabic names** render inline with Noto Sans Arabic and are isolated with `bdi` so headings and
+  rows keep their left alignment. The interface itself is English.
 
-- **Search:** debounced; URL stores `q`, `cityId`, `departmentId` for sharing/restoring.
-- **Availability:** next 10 days, native date for the API’s booking window, past times hidden;
-  booking is select → confirm.
-- **Records stay readable:** monogram identities, dates and slot times, with a 12px floor for
-  functional labels, 13px secondary metadata, 14px table/control text, and 15px lead copy. The mono
-  labels were raised in size and weight rather than scaling the whole document.
-- **Doctor/patient transitions** match the API: doctors accept/cancel pending and complete scheduled;
-  patients cancel pending or scheduled.
-- **Real states:** loading/empty/error/success, disabled pending actions, validation, reconnect
-  guard and a friendly session screen.
-- **No doctor/admin self-registration, uploads, payments or real email delivery.**
+## Test and guard behavior
 
-## Notes
+The client blocks a second active visit with the same doctor on the same day before the API is
+called, on both booking and reschedule. Canceled visits do not block. The schedule UI hides `Add
+hours` for days that already have a window and rejects duplicate override dates. Registration
+validation matches the API password policy (8+ characters, upper/lower case, digit, symbol).
 
-- Seed appointment dates may be historical; new bookings are current upcoming visits.
-- Doctor appointment responses now include patient names where available; records remain linked by ID.
-- There is no automated test suite in this package; `npm run build` is the verified check.
+`npm test` covers date/time helpers, sorting, slot periods, formatting, date and slot components,
+demo role cards and auth validation. `npm run check:sizes` fails if any source file exceeds its
+budget; there are no legacy exceptions.
+
+## Verification
+
+- `npm run check`, `npm test`, and `npm run build` pass.
+- The live flows were exercised against the seeded API, including demo login, search, doctor
+  detail, booking, visits, doctor board, schedule, profile and admin directories.

@@ -1,0 +1,238 @@
+/* ---------- Stamps, slips and ledger ---------- */
+
+.date-rail {
+  display: flex;
+  gap: 0.32rem;
+  overflow-x: auto;
+  padding: 0.15rem 0.15rem 0.55rem;
+  scrollbar-width: thin;
+}
+
+.date-slip {
+  flex: 0 0 62px;
+  display: grid;
+  justify-items: center;
+  gap: 0.02rem;
+  padding: 0.42rem 0.2rem 0.36rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--ink-muted);
+  font-size: 0.6563rem;
+  font-weight: 600;
+  line-height: 1.35;
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease,
+    transform 120ms ease;
+}
+
+.date-slip strong {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 650;
+  line-height: 1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.date-slip:hover {
+  border-color: var(--rule-strong);
+  background: var(--card-soft);
+}
+
+.date-slip.is-selected {
+  border-color: var(--ink);
+  background: var(--pink);
+  color: var(--ink-strong);
+  box-shadow: 3px 3px 0 var(--offset);
+  transform: translate(-1px, -1px);
+}
+
+.date-slip.is-selected strong {
+  color: var(--ink-strong);
+}
+
+.date-slip__conflict {
+  width: 5px;
+  height: 5px;
+  margin-top: 0.15rem;
+  border-radius: 50%;
+  background: var(--amber);
+}
+
+.date-jump {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.15rem;
+  color: var(--ink-muted);
+  font-size: var(--text-small);
+}
+
+.date-jump input {
+  min-height: 30px;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--card);
+  font-size: var(--text-small);
+}
+
+.slot-groups {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 0.9rem;
+}
+
+.slot-empty {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin-top: 0.7rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px dashed var(--rule-strong);
+  background: var(--card-soft);
+}
+
+.slot-empty > svg {
+  flex: none;
+  margin-top: 0.12rem;
+  color: var(--ink-muted);
+}
+
+.slot-empty strong {
+  display: block;
+  font-size: var(--text-small);
+  font-weight: 650;
+}
+
+.slot-empty p {
+  margin-top: 0.1rem;
+  color: var(--ink-muted);
+  font-size: var(--text-min);
+  line-height: 1.55;
+}
+
+.slot-group__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+  color: var(--ink-muted);
+  font-size: var(--text-min);
+  font-weight: 600;
+}
+
+.slot-group__head::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--rule-soft);
+}
+
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(94px, 1fr));
+  gap: 0.32rem;
+}
+
+.slot {
+  display: grid;
+  gap: 0.02rem;
+  padding: 0.4rem 0.5rem 0.36rem;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--card);
+  text-align: left;
+  transition:
+    border-color 110ms ease,
+    background-color 110ms ease;
+}
+
+.slot strong {
+  font-size: 0.95rem;
+  font-weight: 650;
+  line-height: 1.2;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.slot span {
+  color: var(--ink-muted);
+  font-size: 0.6875rem;
+  line-height: 1.3;
+}
+
+.slot:hover:not(:disabled) {
+  border-color: var(--sky-strong);
+  background: var(--sky-wash);
+}
+
+.slot.is-selected {
+  border-color: var(--ink);
+  background: var(--pink);
+  box-shadow: 2px 2px 0 var(--offset);
+}
+
+.slot.is-selected strong,
+.slot.is-selected span {
+  color: var(--ink-strong);
+}
+
+.hold-slip {
+  margin-top: 0.9rem;
+  padding: 0.8rem 0.85rem;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  box-shadow: 4px 4px 0 var(--offset);
+}
+
+.hold-slip__label {
+  color: var(--ink-muted);
+  font-size: var(--text-min);
+  font-weight: 600;
+}
+
+.hold-slip__time {
+  margin-top: 0.1rem;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--ink-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.hold-slip__note {
+  margin-top: 0.45rem;
+  color: var(--ink-muted);
+  font-size: var(--text-min);
+  line-height: 1.5;
+}
+
+.request-slip {
+  margin-top: 0.9rem;
+  padding: 0.95rem;
+  border: 1px solid var(--green);
+  background: var(--green-soft);
+  box-shadow: 4px 4px 0 var(--offset-soft);
+}
+
+.request-slip .stamp {
+  animation: stamp-in 280ms ease-out both;
+}
+
+.request-slip h3 {
+  margin-top: 0.55rem;
+  font-size: 1.1rem;
+  color: var(--ink-strong);
+}
+
+.request-slip p {
+  margin-top: 0.25rem;
+  color: var(--ink-soft);
+  font-size: var(--text-small);
+}
+

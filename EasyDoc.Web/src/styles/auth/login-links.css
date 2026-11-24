@@ -1,0 +1,83 @@
+.auth-login .login-alt-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.55rem;
+  margin-top: 1.4rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--line);
+}
+
+.auth-login .login-alt {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.78);
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.auth-login .login-alt:hover {
+  border-color: var(--sky);
+  background: var(--sky-wash);
+  transform: translateY(-1px);
+}
+
+.auth-login .login-alt--pink:hover {
+  border-color: var(--pink);
+  background: var(--pink-wash);
+}
+
+.auth-login .login-alt__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  background: var(--ice-deep);
+  color: var(--indigo-soft);
+}
+
+.auth-login .login-alt--pink .login-alt__icon {
+  background: var(--pink-wash);
+  color: var(--pink-ink);
+}
+
+.auth-login .login-alt__copy {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.auth-login .login-alt__copy strong {
+  font-size: var(--text-body);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.auth-login .login-alt__copy small {
+  color: var(--ink-muted);
+  font-size: var(--text-meta);
+  line-height: 1.45;
+}
+
+.auth-login .login-alt > svg {
+  flex: none;
+  color: var(--ink-muted);
+}
+
+.auth-login .login-panel__fineprint {
+  margin-top: 1.2rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line-soft);
+  color: var(--ink-muted);
+  font-size: var(--text-meta);
+  line-height: 1.65;
+}

@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  friendly-care:
+  frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -19,21 +19,6 @@ jobs:
           node-version: 22
           cache: npm
           cache-dependency-path: EasyDoc.Web/package-lock.json
-      - run: npm ci
-      - run: npm run build
-
-  open-hours:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: EasyDoc.Web2
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: EasyDoc.Web2/package-lock.json
       - run: npm ci
       - run: npm run check
       - run: npm run check:sizes

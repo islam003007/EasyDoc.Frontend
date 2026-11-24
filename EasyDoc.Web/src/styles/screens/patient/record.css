@@ -1,0 +1,95 @@
+/* ---------- Record ---------- */
+
+.record__identity {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.record__identity > div:nth-child(2) {
+  min-width: 0;
+}
+
+.record__identity h3 {
+  font-size: 1.2rem;
+}
+
+.record__identity p {
+  margin-top: 0.1rem;
+  color: var(--ink-muted);
+  font-size: var(--text-small);
+}
+
+.record__identity .stamp {
+  margin-left: auto;
+  flex: none;
+}
+
+.record__section {
+  margin-top: 1.1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--rule);
+}
+
+.record-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+}
+
+.record-grid > div {
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--rule-soft);
+  background: var(--card-soft);
+}
+
+.record-grid__wide {
+  grid-column: 1 / -1;
+}
+
+.record-grid__label {
+  color: var(--ink-muted);
+  font-size: var(--text-min);
+  font-weight: 600;
+}
+
+.record-grid p {
+  margin-top: 0.12rem;
+  font-size: var(--text-small);
+  line-height: 1.55;
+}
+
+.record-empty {
+  margin-top: 0.6rem;
+  padding: 0.75rem 0.8rem;
+  border: 1px dashed var(--rule-strong);
+  background: var(--card-soft);
+  color: var(--ink-muted);
+  font-size: var(--text-small);
+  line-height: 1.55;
+}
+
+.reschedule-summary {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--rule);
+  background: var(--card-soft);
+}
+
+.reschedule-summary strong {
+  display: block;
+  margin-top: 0.12rem;
+  font-size: var(--text-body);
+  font-weight: 650;
+}
+
+.reschedule-summary p {
+  margin-top: 0.12rem;
+  color: var(--ink-muted);
+  font-size: var(--text-small);
+}
+

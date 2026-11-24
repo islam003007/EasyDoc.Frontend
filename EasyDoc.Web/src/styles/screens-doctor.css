@@ -1,0 +1,5 @@
+/* Doctor workspace screens. */
+@import './screens/doctor/board.css';
+@import './screens/doctor/schedule.css';
+@import './screens/doctor/profile.css';
+@import './screens/doctor/responsive.css';

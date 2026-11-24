@@ -1,4 +1,11 @@
-import { Component, useEffect, type ErrorInfo, type ReactNode } from 'react';
+import {
+  Component,
+  lazy,
+  Suspense,
+  useEffect,
+  type ErrorInfo,
+  type ReactNode,
+} from 'react';
 import {
   BrowserRouter,
   Navigate,
@@ -8,22 +15,66 @@ import {
 } from 'react-router-dom';
 import { RequireAuth, RequireRole } from './auth/guards';
 import { SessionGate, SessionProvider, useSession } from './auth/SessionProvider';
-import { AppShell } from './components/AppShell';
 import { roleHome } from './lib/format';
-import { AccountPage } from './pages/AccountPage';
-import { AdminDoctorsPage } from './pages/AdminDoctorsPage';
-import { AdminPatientsPage } from './pages/AdminPatientsPage';
-import { DoctorDashboardPage } from './pages/DoctorDashboardPage';
-import { DoctorDetailPage } from './pages/DoctorDetailPage';
-import { DoctorProfilePage } from './pages/DoctorProfilePage';
-import { DoctorSchedulePage } from './pages/DoctorSchedulePage';
-import { ForbiddenPage } from './pages/ForbiddenPage';
-import { LoginPage } from './pages/LoginPage';
-import { NotFoundPage } from './pages/NotFoundPage';
-import { PatientAppointmentsPage } from './pages/PatientAppointmentsPage';
-import { PatientSearchPage } from './pages/PatientSearchPage';
-import { RegisterPage } from './pages/RegisterPage';
-import { StandardLoginPage } from './pages/StandardLoginPage';
+import { LoginPage } from './features/auth/LoginPage';
+import { RegisterPage } from './features/auth/RegisterPage';
+import { StandardLoginPage } from './features/auth/StandardLoginPage';
+import { ForbiddenScreen } from './screens/ForbiddenScreen';
+import { NotFoundScreen } from './screens/NotFoundScreen';
+import { AppLoading } from './ui/Loading';
+import { RecoveryScreen } from './ui/RecoveryScreen';
+
+const AppShell = lazy(() =>
+  import('./ui/AppShell').then((module) => ({
+    default: module.AppShell,
+  })),
+);
+
+const AccountScreen = lazy(() =>
+  import('./screens/AccountScreen').then((module) => ({
+    default: module.AccountScreen,
+  })),
+);
+const AdminDoctorsScreen = lazy(() =>
+  import('./screens/AdminDoctorsScreen').then((module) => ({
+    default: module.AdminDoctorsScreen,
+  })),
+);
+const AdminPatientsScreen = lazy(() =>
+  import('./screens/AdminPatientsScreen').then((module) => ({
+    default: module.AdminPatientsScreen,
+  })),
+);
+const DoctorBoardScreen = lazy(() =>
+  import('./screens/DoctorBoardScreen').then((module) => ({
+    default: module.DoctorBoardScreen,
+  })),
+);
+const DoctorDetailScreen = lazy(() =>
+  import('./screens/DoctorDetailScreen').then((module) => ({
+    default: module.DoctorDetailScreen,
+  })),
+);
+const DoctorProfileScreen = lazy(() =>
+  import('./screens/DoctorProfileScreen').then((module) => ({
+    default: module.DoctorProfileScreen,
+  })),
+);
+const DoctorScheduleScreen = lazy(() =>
+  import('./screens/DoctorScheduleScreen').then((module) => ({
+    default: module.DoctorScheduleScreen,
+  })),
+);
+const PatientSearchScreen = lazy(() =>
+  import('./screens/PatientSearchScreen').then((module) => ({
+    default: module.PatientSearchScreen,
+  })),
+);
+const PatientVisitsScreen = lazy(() =>
+  import('./screens/PatientVisitsScreen').then((module) => ({
+    default: module.PatientVisitsScreen,
+  })),
+);
 
 class AppErrorBoundary extends Component<
   { children: ReactNode },
@@ -42,14 +93,12 @@ class AppErrorBoundary extends Component<
   render() {
     if (this.state.error) {
       return (
-        <div className="fatal-screen">
-          <div className="fatal-screen__inner">
-            <p className="mono-label">EasyDoc · page error</p>
-            <h1>Something went wrong on this page.</h1>
-            <p className="fatal-screen__lead">
-              A screen failed to render. Reload to try this page again.
-            </p>
-            <div className="page-actions">
+        <RecoveryScreen
+          eyebrow="EasyDoc · page error"
+          title="This page didn’t open."
+          lead="A screen failed to render. Reload to try this page again, or return to the start of EasyDoc."
+          actions={
+            <>
               <button
                 type="button"
                 className="btn btn--primary"
@@ -60,9 +109,9 @@ class AppErrorBoundary extends Component<
               <a className="btn btn--secondary" href="/">
                 Return to the start
               </a>
-            </div>
-          </div>
-        </div>
+            </>
+          }
+        />
       );
     }
 
@@ -96,7 +145,9 @@ function AppRoutes() {
       <Route
         element={
           <RequireAuth>
-            <AppShell />
+            <Suspense fallback={<AppLoading label="Opening your workspace…" />}>
+              <AppShell />
+            </Suspense>
           </RequireAuth>
         }
       >
@@ -104,7 +155,7 @@ function AppRoutes() {
           path="/patient"
           element={
             <RequireRole role="patient">
-              <PatientSearchPage />
+              <PatientSearchScreen />
             </RequireRole>
           }
         />
@@ -112,7 +163,7 @@ function AppRoutes() {
           path="/patient/doctors/:doctorId"
           element={
             <RequireRole role="patient">
-              <DoctorDetailPage />
+              <DoctorDetailScreen />
             </RequireRole>
           }
         />
@@ -120,7 +171,7 @@ function AppRoutes() {
           path="/patient/appointments"
           element={
             <RequireRole role="patient">
-              <PatientAppointmentsPage />
+              <PatientVisitsScreen />
             </RequireRole>
           }
         />
@@ -129,7 +180,7 @@ function AppRoutes() {
           path="/doctor"
           element={
             <RequireRole role="doctor">
-              <DoctorDashboardPage />
+              <DoctorBoardScreen />
             </RequireRole>
           }
         />
@@ -137,7 +188,7 @@ function AppRoutes() {
           path="/doctor/schedule"
           element={
             <RequireRole role="doctor">
-              <DoctorSchedulePage />
+              <DoctorScheduleScreen />
             </RequireRole>
           }
         />
@@ -145,7 +196,7 @@ function AppRoutes() {
           path="/doctor/profile"
           element={
             <RequireRole role="doctor">
-              <DoctorProfilePage />
+              <DoctorProfileScreen />
             </RequireRole>
           }
         />
@@ -154,7 +205,7 @@ function AppRoutes() {
           path="/admin"
           element={
             <RequireRole role="admin">
-              <AdminDoctorsPage />
+              <AdminDoctorsScreen />
             </RequireRole>
           }
         />
@@ -162,14 +213,14 @@ function AppRoutes() {
           path="/admin/patients"
           element={
             <RequireRole role="admin">
-              <AdminPatientsPage />
+              <AdminPatientsScreen />
             </RequireRole>
           }
         />
 
-        <Route path="/account" element={<AccountPage />} />
-        <Route path="/forbidden" element={<ForbiddenPage />} />
-        <Route path="*" element={<NotFoundPage />} />
+        <Route path="/account" element={<AccountScreen />} />
+        <Route path="/forbidden" element={<ForbiddenScreen />} />
+        <Route path="*" element={<NotFoundScreen />} />
       </Route>
     </Routes>
   );

@@ -1,0 +1,126 @@
+/* ---------- Brand pieces ---------- */
+
+.monogram {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm);
+  background: var(--pink-soft);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  box-shadow: 2px 2px 0 var(--offset-soft);
+}
+
+.monogram--blush {
+  background: var(--pink-soft);
+}
+
+.monogram--sky {
+  background: var(--sky-soft);
+}
+
+.monogram--lilac {
+  background: var(--offset-soft);
+}
+
+.monogram--ink {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--card);
+}
+
+.monogram--sm {
+  width: 30px;
+  height: 30px;
+  font-size: 0.7rem;
+  border-radius: 4px;
+}
+
+.monogram--md {
+  width: 40px;
+  height: 40px;
+  font-size: 0.85rem;
+}
+
+.monogram--lg {
+  width: 54px;
+  height: 54px;
+  font-size: 1.05rem;
+}
+
+.monogram--xl {
+  width: clamp(64px, 9vw, 86px);
+  height: clamp(64px, 9vw, 86px);
+  font-size: clamp(1.25rem, 2.5vw, 1.7rem);
+  box-shadow: 4px 4px 0 var(--offset-soft);
+}
+
+/* ---------- Stamps ---------- */
+
+.stamp {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.18rem 0.52rem;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  font-family: var(--font-body);
+  font-size: 0.6563rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  line-height: 1.35;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: rotate(-1.5deg);
+}
+
+.stamp::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border: 1px solid currentColor;
+  border-radius: 1px;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.stamp--pending {
+  color: var(--amber);
+  background: var(--amber-soft);
+}
+
+.stamp--scheduled {
+  color: var(--sky-strong);
+  background: var(--sky-soft);
+}
+
+.stamp--done {
+  color: var(--green);
+  background: var(--green-soft);
+}
+
+.stamp--void {
+  color: var(--slate);
+  background: var(--slate-soft);
+}
+
+.stamp--solid {
+  color: var(--card);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.stamp--solid::after {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.stamp--lg {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.75rem;
+}
+
