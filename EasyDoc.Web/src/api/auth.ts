@@ -22,6 +22,10 @@ export async function fetchDemoUsers(signal?: AbortSignal): Promise<DemoUser[]> 
   return normalizeDemoUsers(payload);
 }
 
+export async function warmDemoDatabase(signal?: AbortSignal): Promise<void> {
+  await apiRequest<unknown>('/demo/warmup', { signal });
+}
+
 export async function demoLogin(key: string): Promise<void> {
   await apiRequest<unknown>('/auth/demo-login', {
     method: 'POST',

@@ -1,7 +1,7 @@
 import { ArrowRight, ShieldCheck } from 'lucide-react';
 import type { DemoUser, Role } from '../../api/contracts';
 import { roleBlurb } from '../../lib/format';
-import { AuthMonogram, AuthSpinner } from './AuthFeedback';
+import { AuthMonogram, AuthSpinner } from '../auth/AuthFeedback';
 import {
   ROLE_CARD_LABEL,
   ROLE_ICON,

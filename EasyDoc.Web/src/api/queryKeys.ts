@@ -1,6 +1,7 @@
 export const queryKeys = {
   session: ['session'] as const,
   demoUsers: ['demo-users'] as const,
+  demoWarmup: ['demo-warmup'] as const,
   departments: ['lookups', 'departments'] as const,
   cities: ['lookups', 'cities'] as const,
   doctorSearch: (query: string, cityId: string, departmentId: string) =>

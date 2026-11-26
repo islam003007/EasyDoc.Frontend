@@ -9,10 +9,15 @@ import { Link } from 'react-router-dom';
 import { useDemoSeats } from './useDemoSeats';
 import { ROLE_ORDER } from './demo-seat-content';
 import { DemoRoleCard } from './DemoRoleCard';
-import { AuthEmpty, AuthErrorPanel, AuthSkeleton } from './AuthFeedback';
+import { AuthEmpty, AuthErrorPanel, AuthSkeleton } from '../auth/AuthFeedback';
+import { useDemoWarmup } from './useDemoWarmup';
 
 export function DemoSeatPanel() {
   const { users, login } = useDemoSeats();
+  const warmup = useDemoWarmup(
+    users.isSuccess && (users.data?.length ?? 0) > 0,
+  );
+  const warming = warmup.isFetching;
 
   const groups = ROLE_ORDER.map((role) => ({
     role,
@@ -49,6 +54,19 @@ export function DemoSeatPanel() {
             </ul>
           </div>
         </div>
+
+        {warming ? (
+          <p className="demo-warmup" role="status">
+            Waking the demo database…
+          </p>
+        ) : null}
+
+        {warmup.isError && users.isSuccess ? (
+          <p className="demo-warmup demo-warmup--error">
+            The demo database is taking longer than usual. You can still try
+            signing in.
+          </p>
+        ) : null}
 
         {login.isError ? (
           <div className="auth-inline-error" role="alert">
@@ -107,7 +125,7 @@ export function DemoSeatPanel() {
                 pendingUserKey={
                   login.isPending ? login.variables?.key : undefined
                 }
-                disabled={login.isPending}
+                disabled={login.isPending || warming}
                 onSelect={(user) => login.mutate(user)}
               />
             ))}

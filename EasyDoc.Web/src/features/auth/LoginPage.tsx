@@ -4,7 +4,7 @@ import { roleHome } from '../../lib/format';
 import { useDocumentTitle } from '../../lib/useDocumentTitle';
 import './fonts';
 import '../../styles/auth.css';
-import { DemoSeatPanel } from './DemoSeatPanel';
+import { DemoSeatPanel } from '../demo/DemoSeatPanel';
 import { LoginBrandPanel } from './LoginBrandPanel';
 
 export function LoginPage() {
