@@ -1,7 +1,9 @@
 import {
+  AlertTriangle,
   ArrowUpRight,
   Info,
   LogIn,
+  RotateCw,
   ShieldCheck,
   UserPlus,
 } from 'lucide-react';
@@ -9,7 +11,12 @@ import { Link } from 'react-router-dom';
 import { useDemoSeats } from './useDemoSeats';
 import { ROLE_ORDER } from './demo-seat-content';
 import { DemoRoleCard } from './DemoRoleCard';
-import { AuthEmpty, AuthErrorPanel, AuthSkeleton } from '../auth/AuthFeedback';
+import {
+  AuthEmpty,
+  AuthErrorPanel,
+  AuthSkeleton,
+  AuthSpinner,
+} from '../auth/AuthFeedback';
 import { useDemoWarmup } from './useDemoWarmup';
 
 export function DemoSeatPanel() {
@@ -17,7 +24,8 @@ export function DemoSeatPanel() {
   const warmup = useDemoWarmup(
     users.isSuccess && (users.data?.length ?? 0) > 0,
   );
-  const warming = warmup.isFetching;
+  const warming = warmup.isFetching && !warmup.isSuccess;
+  const warmupFailed = warmup.isError && !warming;
 
   const groups = ROLE_ORDER.map((role) => ({
     role,
@@ -56,16 +64,40 @@ export function DemoSeatPanel() {
         </div>
 
         {warming ? (
-          <p className="demo-warmup" role="status">
-            Waking the demo database…
-          </p>
+          <div className="demo-warmup" role="status" aria-live="polite">
+            <span className="demo-warmup__spinner">
+              <AuthSpinner />
+            </span>
+            <div className="demo-warmup__copy">
+              <strong>Waking the demo database…</strong>
+              <p>
+                The free demo sleeps between reviews. This usually takes a few
+                seconds; the demo seats unlock automatically.
+              </p>
+            </div>
+          </div>
         ) : null}
 
-        {warmup.isError && users.isSuccess ? (
-          <p className="demo-warmup demo-warmup--error">
-            The demo database is taking longer than usual. You can still try
-            signing in.
-          </p>
+        {warmupFailed && users.isSuccess ? (
+          <div className="demo-warmup demo-warmup--error" role="alert">
+            <span className="demo-warmup__icon" aria-hidden="true">
+              <AlertTriangle size={16} />
+            </span>
+            <div className="demo-warmup__copy">
+              <strong>The demo database is taking longer than usual.</strong>
+              <p>You can still try signing in, or retry the warmup.</p>
+              <button
+                type="button"
+                className="auth-btn auth-btn--secondary auth-btn--sm"
+                onClick={() => {
+                  void warmup.refetch();
+                }}
+              >
+                <RotateCw size={14} aria-hidden="true" />
+                Retry warmup
+              </button>
+            </div>
+          </div>
         ) : null}
 
         {login.isError ? (

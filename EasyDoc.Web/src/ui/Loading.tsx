@@ -9,7 +9,13 @@ export function Spinner({ label }: { label?: string }) {
   );
 }
 
-export function AppLoading({ label = 'Opening the clinic…' }: { label?: string }) {
+export function AppLoading({
+  label = 'Opening the clinic…',
+  detail,
+}: {
+  label?: string;
+  detail?: string;
+}) {
   return (
     <div className="recovery-screen">
       <div className="app-loading" role="status" aria-live="polite">
@@ -18,6 +24,7 @@ export function AppLoading({ label = 'Opening the clinic…' }: { label?: string
         </div>
         <p className="mini-label">EasyDoc · getting ready</p>
         <p className="app-loading__label">{label}</p>
+        {detail ? <p className="app-loading__detail">{detail}</p> : null}
         <Spinner label={label} />
       </div>
     </div>

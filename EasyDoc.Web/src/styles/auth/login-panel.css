@@ -205,14 +205,63 @@
 }
 
 .auth-login .demo-warmup {
-  margin: 0.8rem 0 0;
-  color: var(--ink-muted);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin: 0.9rem 0 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(44, 139, 179, 0.28);
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--sky-wash) 0%, #fff 82%);
+  box-shadow: var(--shadow-sm);
+}
+
+.auth-login .demo-warmup__spinner,
+.auth-login .demo-warmup__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.auth-login .demo-warmup__spinner {
+  color: var(--sky-deep);
+}
+
+.auth-login .demo-warmup__icon {
+  color: var(--error);
+}
+
+.auth-login .demo-warmup__copy {
+  min-width: 0;
+}
+
+.auth-login .demo-warmup__copy strong {
+  display: block;
+  color: var(--ink-strong);
+  font-size: var(--text-body);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.auth-login .demo-warmup__copy p {
+  margin: 0.2rem 0 0;
+  color: var(--ink-soft);
   font-size: var(--text-meta);
-  line-height: 1.5;
+  line-height: 1.55;
+}
+
+.auth-login .demo-warmup__copy .auth-btn {
+  margin-top: 0.55rem;
 }
 
 .auth-login .demo-warmup--error {
-  color: var(--amber-strong, var(--ink-muted));
+  border-color: rgba(176, 42, 79, 0.24);
+  background: linear-gradient(135deg, var(--error-wash) 0%, #fff 82%);
 }
 
 .auth-login .role-card__users {
